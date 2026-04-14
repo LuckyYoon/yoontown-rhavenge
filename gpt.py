@@ -4,7 +4,7 @@ import random
 
 # Initialize
 pygame.init()
-WIDTH, HEIGHT = 800, 600
+WIDTH, HEIGHT = 1000, 800
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Basic Bullet Hell Bossfight")
 clock = pygame.time.Clock()
@@ -26,7 +26,7 @@ boss_radius = 20
 
 # Bullets
 bullets = []
-bullet_speed = 2
+bullet_speed = 3
 
 # Shoot timer
 shoot_timer = 0
@@ -36,6 +36,10 @@ running = True
 count = 0
 movement1 = 10
 movement2 = 10
+health = 100
+immune = False
+immune_start_time = 0
+IMMUNE_DURATION = 500  # milliseconds (0.5 sec)
 while running:
     displace += 5 * random.random()
     clock.tick(60)
@@ -58,13 +62,13 @@ while running:
 
     # Player movement
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT]:
+    if keys[pygame.K_a]:
         player_pos[0] -= player_speed
-    if keys[pygame.K_RIGHT]:
+    if keys[pygame.K_d]:
         player_pos[0] += player_speed
-    if keys[pygame.K_UP]:
+    if keys[pygame.K_w]:
         player_pos[1] -= player_speed
-    if keys[pygame.K_DOWN]:
+    if keys[pygame.K_s]:
         player_pos[1] += player_speed
 
     # Clamp player
@@ -97,10 +101,20 @@ while running:
     # Collision detection
     for b in bullets:
         dist = math.hypot(b[0] - player_pos[0], b[1] - player_pos[1])
-        if dist < player_radius:
+        if dist < player_radius and not immune:
             print("Hit!")
-            running = False
-
+            health = health - 40
+            pygame.time.delay(200)
+            immune = True
+            immune_start_time = pygame.time.get_ticks()
+            #turn immune off after 0.5 sec
+            if health <= 0:
+                running = False
+            break
+    # Turn off immunity after 0.5 seconds
+    if immune:
+        if pygame.time.get_ticks() - immune_start_time >= IMMUNE_DURATION:
+            immune = False
     # Draw boss
     rect = boss_img.get_rect(center= boss_pos)
     screen.blit(boss_img, rect)
