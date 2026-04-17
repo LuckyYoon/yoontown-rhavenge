@@ -11,6 +11,19 @@ screen = pygame.display.set_mode((WIN_W, WIN_H))
 pygame.display.set_caption("Hell")
 clock = pygame.time.Clock()
 run = True
+boss_img = pygame.image.load("pixilart-frames/goober0.png").convert_alpha()
+boss_img = pygame.transform.smoothscale(boss_img, (400, 400))  # resize if needed
+
+pygame.mixer.init()
+
+# Load music
+pygame.mixer.music.load("pygameboss_.mp3")
+bulletspawn = pygame.mixer.Sound("bulletspawn.mp3")
+bulletspawn.set_volume(0.1)
+print(pygame.mixer.music.get_volume())
+pygame.mixer.music.set_volume(2)
+# Play music (loop forever with -1)
+pygame.mixer.music.play(-1)
 
 #Global variables
 count = 0
@@ -23,7 +36,7 @@ attack1on = False
 attack2on = False
 attack3on = False
 phase2 = False
-
+num = 0
 timers = {}
 
 def fire_bullet(bullets):
@@ -154,10 +167,11 @@ class Boss:
             bullets.append(bullet)
     
     def attack3(self):
-        for i in range(15):
-        # Math to do radial attack
+        bulletspawn.play()
+        for i in range(8):
+        # Math to do radial attackS
             # Create the angle for bullet direction
-            angle = (2 * math.pi / 15) * i
+            angle = (2 * math.pi / 8) * i
             # Create the velocity in x of bullet
             dx = math.cos(angle)
             # Create the velocity in y of bullet
@@ -248,7 +262,6 @@ class BossProjectile(Projectile):
         global immune
         global immune_start_time
         #Math for calculating a collision
-         # 🚫 DO NOT DAMAGE during warning phase
         if self.delay > 0:
             return
         dist = math.hypot(player.x - self.p_x, player.y - self.p_y)
@@ -288,7 +301,16 @@ while run:
     #Create player and boss, will likely be moved to view class
     screen.fill((0, 0, 0))  # clear screen
     pygame.draw.circle(screen, (50, 200, 50), (player.x,player.y), player.size)
-    pygame.draw.circle(screen,(50, 200, 50), (boss.X,boss.Y), boss.SIZE)
+
+    if delay("newframe",200):
+        boss_img = pygame.image.load(f"pixilart-frames/goober{num}.png").convert_alpha()
+        
+        num += 1
+        if num >= 4:
+            num = 0
+    
+    rect = boss_img.get_rect(center= (boss.X,boss.Y))
+    screen.blit(boss_img, rect)
 
     if delay("newattack",2000*random.random() + 1000) and not phase2:
         usage = 0
