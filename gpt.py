@@ -1,6 +1,8 @@
 import pygame
 import math
 import random
+import time
+from config import *
 
 # Initialize
 pygame.init()
@@ -89,8 +91,9 @@ while running:
             dx = math.cos(angle)
             dy = math.sin(angle)
             bullets.append([boss_pos[0], boss_pos[1], dx, dy])
+        
 
-    # Update bullets
+    # Update bullet 
     for b in bullets:
         b[0] += b[2] * bullet_speed
         b[1] += b[3] * bullet_speed

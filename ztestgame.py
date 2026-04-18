@@ -1,0 +1,134 @@
+#!/usr/bin/env python3
+#Imports
+import pygame
+import math
+import random
+import time
+from zconfig import *
+
+#Initialize pygame and screen
+run = True
+pygame.init()
+clock = pygame.time.Clock()
+# Load music
+pygame.mixer.init()
+pygame.mixer.music.load("audio/pygameboss_.mp3")
+bulletspawn.set_volume(0.1)
+pygame.mixer.music.set_volume(2)
+# Play music (loop forever with -1)
+pygame.mixer.music.play(-1)
+
+#Dynamic variables
+
+usage = 0
+attack1on = False
+attack2on = False
+attack3on = False
+num = 0
+timers = {}
+bullets = []  
+
+
+
+
+
+
+    
+
+        
+
+    
+
+
+
+from zclasses import *
+boss = Boss(480,360)
+player = Player(50,20)
+controller = Controller()
+
+
+
+while run:
+    clock.tick(60)
+
+    #Register user inputs
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+         run = False
+    #Allow player to move
+    controller.move(player,False)
+
+    #Create player and boss, will likely be moved to view class
+    screen.fill((0, 0, 0))  # clear screen
+    pygame.draw.circle(screen, (50, 200, 50), (player.x,player.y), player.size)
+
+    if delay(timers,"newframe",200):
+        boss_img = pygame.image.load(f"sprites/BOSS/BOSS - frames/BOSS{num}.png").convert_alpha()
+        
+        num += 1
+        if num >= 4:
+            num = 0
+    
+    rect = boss_img.get_rect(center= (boss.X,boss.Y))
+    screen.blit(boss_img, rect)
+
+    if delay(timers,"newattack",2000*random.random() + 1000) and not controller.phase2:
+        usage = 0
+        attack3on = True
+        boss.attack3(player,bullets)
+
+    if delay(timers,"newattack",2000*random.random() + 1000) and controller.phase2:
+        usage = 0
+        if 2 * random.random() <= 1:
+            attack1on = True
+            attack2on = False
+        else:
+            attack2on = True
+            attack1on = False
+
+    if delay(timers,"attack1",200) and usage <= 5 and attack1on and not attack2on:
+        boss.attack1(bullets,5*random.random())
+        usage += 1
+        if usage >= 5 and len(bullets)<=0:
+            attack1on = False
+    
+
+    if delay(timers,"attack2",400) and usage <= 5 and attack2on and not attack1on:
+            boss.attack2(bullets,5*random.random())
+            usage += 1
+            if usage >= 5 and len(bullets)<=0:
+                attack2on = False
+
+    if delay(timers,"attack3",400) and usage <= 2 and attack3on:
+            boss.attack3(player,bullets)
+            usage += 1
+            if usage >= 2 and len(bullets)<=0:
+                attack3on = False
+                
+    # Do the boss attack once for now
+    
+    player.x = max(0, min(WIN_W - 20, player.x))
+    player.y = max(0, min(WIN_H - 20, player.y))    
+
+    #if delay("attack2",2000):
+    #    boss.attack2(5*random.random())
+
+    # Move bullets and such. Will be moved to diff class later.
+    if attack1on or attack2on or attack3on:
+        fire_bullet(bullets,player)
+    boss.move_boss()    
+    bullets = [b for b in bullets if 0 <= b.p_x <= WIN_W and 0 <= b.p_y <= WIN_H]
+    for b in bullets:
+        rect = bullet_img.get_rect(center=(b.p_x, b.p_y))
+        screen.blit(bullet_img, rect)
+    # Immunity code
+    if player.immune:
+        if pygame.time.get_ticks() - player.immune_start_time >= IMMUNE_DURATION:
+            player.immune = False
+
+    
+    pygame.display.flip()
+    if pygame.time.get_ticks() >= 30000 or player.hp<=0:
+        pygame.quit()
+        run = False
+       
