@@ -6,8 +6,22 @@ from zconfig import *
 
 
 # Model Classes
-class Player:
 
+class Player:
+    """
+    Class for storing information about the user of the game. It stores the player's
+    position, health, size, speed, living status, and immunity status.
+
+    Attributes:
+        x: Float representing the player's position in x
+        y: Float representing the player's position in y
+        hp: Int representing the amount of health the player has. The player dies if health is 0.
+        size: Int representing the visual and hitbox size of player
+        movespeed: Int representing he speed of the player.
+        alive: Boolean representing if the player is alive or not
+        immune: Boolean representing if the player is immune or not.
+        immune_start_time: Float representing the time a player becomes immune.
+    """
     def __init__(self,x,y):
         self.x = x
         self.y = y
@@ -19,7 +33,21 @@ class Player:
         self.immune_start_time = 0
 
 class Boss:
-    
+    """
+    Creates a Player that the user will control.
+
+
+    x: floats that represent the Player's x position
+    y: floats that represent the Player's y position
+    hp: an int that's the number of Player's hit points
+    size: an int that's the Player's size/hit box
+    movespeed: an int that's the Player's movespeed
+    alive: a boolean; True if alive, False if dead
+    immune: a boolean; True if Player is immune to damage, False otherwise
+    immune_start_time: int, starting time of immunity status
+    """
+
+
     def __init__(self,X,Y):
         self.X = X
         self.Y = Y
@@ -128,7 +156,20 @@ class Boss:
             
 
 class Projectile:
+    """
+    Class for projectile stats. This stores projectile speed, size,
+    damage, position, and velocity.
 
+    Args:
+        p_speed: Speed of the projectile
+        p_size: Size of the projectile
+        p_damage: Damage the projectile will deal
+        p_x: Spawn position of the projectile in x
+        p_y: Spawn position of the projectile in y
+        
+    Returns:
+        None
+    """
     def __init__(self,p_speed,p_size,p_damage,p_x,p_y):
         self.p_speed = p_speed  
         self.p_size = p_size
@@ -144,7 +185,15 @@ class Projectile:
     
 
 class BossProjectile(Projectile):
-    
+    """
+    Class for projectiles the Boss fires. This inherits base stats from
+    the Projectile class and adds its own functions.
+    Args:
+        None (same as Projectile)
+    Returns:
+        None
+    """
+
     def __init__(self,p_speed,p_size,p_damage,p_x,p_y):
         super().__init__(p_speed,p_size,p_damage,p_x,p_y)
         self.orbit_speed = 0.01
@@ -156,6 +205,14 @@ class BossProjectile(Projectile):
         self.delay = 0
         self.spawn_time = 0
     def launch_projectile(self):
+        """
+        Function that moves projectiles. First checks for a delay before the launch, then changes
+        projectile position based on speed and direction.
+        Args:
+            None
+        Returns:
+            None ?
+        """
                 # wait before launching
         if self.delay > 0:
             if pygame.time.get_ticks() - self.spawn_time >= self.delay:
@@ -169,6 +226,13 @@ class BossProjectile(Projectile):
             self.p_y += self.dy * self.p_speed
 
     def spin_projectile(self):
+        """
+        Function to apply a rotation to projectiles for specific attacks.
+        Args:
+            None
+        Returns:
+            None
+        """
         if self.spin:
             # increase angle = spinning
             self.angle += self.orbit_speed
@@ -183,8 +247,16 @@ class BossProjectile(Projectile):
     #Boss projectiles will collide with player to do damage         
     #After a hit, player is immune for a little.
     def player_collision(self,player):
-        global hit
-        global immune_start_time
+        """
+        Function to hit the player if a boss projectile comes too close.
+        The player will lose health and become immune for a short period. 
+        The game will freeze very quickly to indicate hit.
+        Args:
+            player: An instance of the player class
+        Returns:
+            None
+        """
+
         #Math for calculating a collision
         if self.delay > 0:
             return
@@ -204,50 +276,67 @@ class BossProjectile(Projectile):
 #View Class
 
 class View:
-
+    """
+    Class Containing functions to draw all sprites.
+    Args:
+        None
+    Returns:
+        None
+    """
     def draw_player(self, player):
+        """
+        Draws the sprite for the player.
+        Args:
+            player: instance of the Player class
+        Returns: None
+        """
         pygame.draw.circle(screen, (50, 150, 255),
             (int(player.x), int(player.y)), player.size)
 
     def draw_boss(self, boss):
+        """
+        Draws the sprite for the boss.
+        Args:
+            boss: instance of the Player class
+        Returns: None
+        """
         pygame.draw.circle(screen, (255, 50, 50),
             (int(boss.X), int(boss.Y)), boss.SIZE)
                            
     def draw_bullet(self, bullet):
+        """
+        Draws the sprite for the projectiles.
+        Args:
+            bullet: instance of the Projectile class
+        Returns: None
+        """    
         color = (255, 50, 50) if bullet.delay > 0 else (50, 200, 50)
         pygame.draw.circle(screen, color,
             (int(bullet.p_x), int(bullet.p_y)), bullet.p_size)
 
 
-
-def fire_bullet(bullets,player):
-     for bullet in bullets:
-         bullet.launch_projectile()
-         bullet.spin_projectile()
-         bullet.player_collision(player)
-
-
-def delay(timers,key, ms):
-    now = pygame.time.get_ticks()
-
-    if key not in timers:
-        timers[key] = now
-        return False
-
-    if now - timers[key] >= ms:
-        timers[key] = now
-        return True
-
-    return False
-
 # Controller Class
 
 class Controller:
+    """
+    Allows the player to move using WASD inputs
+    Args: 
+        None
+    Returns: 
+        None
+    """
 
     def __init__(self):
         self.phase = False
 
     def move(self, player):
+        """
+        Function for moving the player with WASD keys.
+        Args:
+            player: Instance of the player class
+        Returns:
+            None
+        """
         keys = pygame.key.get_pressed()
         if keys[pygame.K_a]:
             player.x -= player.movespeed
@@ -264,3 +353,43 @@ class Controller:
         if keys[pygame.K_9]:
             print("Enter Phase 2")
             self.phase = True
+
+
+
+def fire_bullet(bullets,player):
+     """
+     Function to fire boss projectiles.
+     Args:
+        bullets: The list of bullets (instances of boss projectiles)
+        player: Instance of the Player class
+    Returns:
+        None
+     """
+     for bullet in bullets:
+         bullet.launch_projectile()
+         bullet.spin_projectile()
+         bullet.player_collision(player)
+
+
+def delay(timers, key, ms):
+    """
+     Function to create delays for specific actions.
+     Args:
+        timers: A dictionary of different objects to time.
+        key: The name of the timer
+        ms: The amount of time in ms to delay by
+    Returns:
+        False- if the time in ms has not passed
+        True- if the time in ms has passed
+     """
+    now = pygame.time.get_ticks()
+
+    if key not in timers:
+        timers[key] = now
+        return False
+
+    if now - timers[key] >= ms:
+        timers[key] = now
+        return True
+
+    return False
