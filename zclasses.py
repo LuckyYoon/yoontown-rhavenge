@@ -118,31 +118,9 @@ class Boss:
 
         
 
-class Controller:
 
 
-    def __init__(self):
-        self.phase = False
 
-    def move(self, player):
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_a]:
-            player.x -= player.movespeed
-        if keys[pygame.K_d]:
-            player.x += player.movespeed
-        if keys[pygame.K_w]:
-            player.y -= player.movespeed
-        if keys[pygame.K_s]:
-            player.y += player.movespeed
-        self.phase2()
-
-    def phase2(self):
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_9]:
-            print("Enter Phase 2")
-            self.phase = True
-
-            
 
 
             
@@ -163,13 +141,6 @@ class Projectile:
         self.dy = 0
     
 
-    def create_projectile(self):
-        if self.delay > 0:
-            color = (255, 50, 50)  # red warning
-        else:
-            color = (50, 200, 50)
-        #Draw the projectile on the screen. Will likely be moved to view class
-        pygame.draw.circle(screen, color, (int(self.p_x),int(self.p_y)), self.p_size)
     
 
 class BossProjectile(Projectile):
@@ -230,9 +201,27 @@ class BossProjectile(Projectile):
             player.immune_start_time = pygame.time.get_ticks()
             #turn immune off after 0.5 sec
 
+#View Class
+
+class View:
+
+    def draw_player(self, player):
+        pygame.draw.circle(screen, (50, 150, 255),
+            (int(player.x), int(player.y)), player.size)
+
+    def draw_boss(self, boss):
+        pygame.draw.circle(screen, (255, 50, 50),
+            (int(boss.X), int(boss.Y)), boss.SIZE)
+                           
+    def draw_bullet(self, bullet):
+        color = (255, 50, 50) if bullet.delay > 0 else (50, 200, 50)
+        pygame.draw.circle(screen, color,
+            (int(bullet.p_x), int(bullet.p_y)), bullet.p_size)
+
+
+
 def fire_bullet(bullets,player):
      for bullet in bullets:
-         bullet.create_projectile()
          bullet.launch_projectile()
          bullet.spin_projectile()
          bullet.player_collision(player)
@@ -250,3 +239,28 @@ def delay(timers,key, ms):
         return True
 
     return False
+
+# Controller Class
+
+class Controller:
+
+    def __init__(self):
+        self.phase = False
+
+    def move(self, player):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_a]:
+            player.x -= player.movespeed
+        if keys[pygame.K_d]:
+            player.x += player.movespeed
+        if keys[pygame.K_w]:
+            player.y -= player.movespeed
+        if keys[pygame.K_s]:
+            player.y += player.movespeed
+        self.phase2()
+
+    def phase2(self):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_9]:
+            print("Enter Phase 2")
+            self.phase = True

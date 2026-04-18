@@ -45,7 +45,7 @@ from zclasses import *
 boss = Boss(480,360)
 player = Player(50,20)
 controller = Controller()
-
+view = View()
 
 
 while run:
@@ -60,7 +60,7 @@ while run:
 
     #Create player and boss, will likely be moved to view class
     screen.fill((0, 0, 0))  # clear screen
-    pygame.draw.circle(screen, (50, 200, 50), (player.x,player.y), player.size)
+    #pygame.draw.circle(screen, (50, 200, 50), (player.x,player.y), player.size)
 
     if delay(timers,"newframe",200):
         boss_img = pygame.image.load(f"sprites/BOSS/BOSS - frames/BOSS{num}.png").convert_alpha()
@@ -69,8 +69,8 @@ while run:
         if num >= 4:
             num = 0
     
-    rect = boss_img.get_rect(center= (boss.X,boss.Y))
-    screen.blit(boss_img, rect)
+    #rect = boss_img.get_rect(center= (boss.X,boss.Y))
+    #screen.blit(boss_img, rect)
 
     if delay(timers,"newattack",2000*random.random() + 1000) and not controller.phase:
         usage = 0
@@ -116,11 +116,20 @@ while run:
     # Move bullets and such. Will be moved to diff class later.
     if attack1on or attack2on or attack3on:
         fire_bullet(bullets,player)
-    boss.move_boss()    
+    boss.move_boss()  
+
+    view.draw_player(player)
+    view.draw_boss(boss)
+
     bullets = [b for b in bullets if 0 <= b.p_x <= WIN_W and 0 <= b.p_y <= WIN_H]
     for b in bullets:
-        rect = bullet_img.get_rect(center=(b.p_x, b.p_y))
-        screen.blit(bullet_img, rect)
+        view.draw_bullet(b)
+
+        
+        
+        
+        #rect = bullet_img.get_rect(center=(b.p_x, b.p_y))
+        #screen.blit(bullet_img, rect)
     # Immunity code
     if player.immune:
         if pygame.time.get_ticks() - player.immune_start_time >= IMMUNE_DURATION:
