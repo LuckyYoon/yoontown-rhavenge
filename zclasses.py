@@ -68,7 +68,12 @@ class Boss:
         self.hit = False
 
     def random_move(self):
-        
+        """
+        Function to set the boss's velocity to move to a random location on the screen.
+
+        Returns:
+            None
+        """
         self.new_x = WIN_W * random.random() 
         self.new_y = WIN_H * random.random()
         self.dx = self.new_x-self.x
@@ -79,6 +84,12 @@ class Boss:
             self.dy /= distance
 
     def move_boss(self):
+        """
+        Function to move the boss. The boss will move to a random location on the screen, then pick a new location once it gets there.
+
+        Returns:
+            None
+        """
         self.x += 5*self.dx
         self.y += 5*self.dy
         if self.x == self.new_x and self.y == self.new_y:
@@ -116,6 +127,16 @@ class Boss:
                   
 
     def attack2(self,bullets,displace):
+        """
+        Creates a radial attack spawning on the boss with a spinning effect.
+
+        Args:
+            bullets: The global list of boss projectiles
+            displace: A float representing a random number to shift the angle
+        
+        Returns:
+            None
+        """
         self.displace = displace
         for i in range(30):
         #Math to do radial attack
@@ -138,6 +159,16 @@ class Boss:
             bullets.append(bullet)
     
     def attack3(self,player,bullets):
+        """
+        Creates a radial attack spawning on the player with a delay before the projectiles launch.
+
+        Args:
+            player: An instance of the player class to target
+            bullets: The global list of boss projectiles
+
+        Returns:
+            None
+        """
         bulletspawn.play()
         for i in range(8):
         # Math to do radial attackS
@@ -164,6 +195,15 @@ class Boss:
             bullets.append(bullet)
 
     def attack4(self,bullets):
+        """
+        Creates a wave attack spawning on the right side of the screen.
+
+        Args:
+            bullets: The global list of boss projectiles
+
+        Returns:
+            None
+        """
         #wave attack
         for i in range(10):
             bullet = BossProjectile(10,6,10,WIN_W-20,random.random()*WIN_H)
@@ -174,6 +214,16 @@ class Boss:
             bullets.append(bullet)
     
     def attack5(self,bullets,spawn_pos):
+        """
+        Creates a single bullet attack spawning at a specific position.
+
+        Args:
+            bullets: The global list of boss projectiles
+            spawn_pos: The position where the bullet will spawn
+
+        Returns:
+            None
+        """
         #single bullet
             bullet = BossProjectile(20,24*1.2,20,WIN_W-50,spawn_pos)
             bullet.dx = -1
@@ -183,6 +233,17 @@ class Boss:
             bullets.append(bullet)
     
     def attack6(self, bullets, player):
+        """
+        Creates a javelin attack that spawns on the boss and aims at the player with a delay before the projectiles launch. 
+        The attack also reduces the size of the arena.
+
+        Args:
+            bullets: The global list of boss projectiles
+            player: An instance of the player class to target
+        
+        Returns:
+            None
+        """
         #javelin
         dx = player.x - self.x
         dy = player.y - self.y
@@ -217,6 +278,16 @@ class Boss:
             bullets.append(seg)
 
     def attack7(self, bullets, player):
+        """
+        Creates a sweeping attack that spawns on the boss and sweeps across the arena with a delay before the projectiles launch.
+
+        Args:
+            bullets: The global list of boss projectiles
+            player: An instance of the player class to target
+        
+        Returns:
+            None
+        """
         # Aim at player initially
         dx = -1
         dy = -3
@@ -340,7 +411,7 @@ class BossProjectile(Projectile):
         projectile position based on speed and direction.
 
         Returns:
-            None ?
+            None
         """
 
         # Follow a projectile
@@ -367,6 +438,9 @@ class BossProjectile(Projectile):
     def spin_projectile(self):
         """
         Function to apply a rotation to projectiles for specific attacks.
+
+        Returns:
+            None
         """
         # FOLLOW PRIME (laser behavior)
         if self.delay > 0:
@@ -447,6 +521,12 @@ class PlayerProjectile(Projectile):
 
 
     def launch_projectile(self):
+        """
+        Function that launches projectiles. Changes projectile position based on speed and direction.
+
+        Returns:
+            None
+        """
         self.p_x += self.dx * self.p_speed
         self.p_y += self.dy * self.p_speed
         self.player_p_hitbox = (self.p_x,self.p_y,2,5)
@@ -457,7 +537,7 @@ class PlayerProjectile(Projectile):
         The boss will lose health.
 
         Args:
-            player: An instance of the player class
+            boss: An instance of the boss class
         """
         if self.hit:
             return
