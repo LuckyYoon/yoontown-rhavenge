@@ -1,132 +1,185 @@
 import pygame
 import math
 import random
-import time
 
 # Initialize
 pygame.init()
 WIDTH, HEIGHT = 960, 720
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Basic Bullet Hell Bossfight")
+pygame.display.set_caption("Bullet Hell Bossfight")
 clock = pygame.time.Clock()
 
+# Fonts
+font = pygame.font.SysFont("arial", 48)
+small_font = pygame.font.SysFont("arial", 28)
+
+# Load images
 bullet_img = pygame.image.load("sprites/BOSS/BOSS - attacks/Boss small attack.png").convert_alpha()
-bullet_img = pygame.transform.scale(bullet_img, (200, 200))  # resize if needed
+bullet_img = pygame.transform.scale(bullet_img, (16, 16))
+
 boss_img = pygame.image.load("sprites/BOSS/BOSS - frames/BOSS1.png").convert_alpha()
-boss_img = pygame.transform.scale(boss_img, (400, 400))  # resize if needed
+boss_img = pygame.transform.scale(boss_img, (400, 400))
 
+# -------- GAME RESET FUNCTION --------
+def reset_game():
+    return {
+        "player_pos": [WIDTH // 2, HEIGHT - 60],
+        "boss_pos": [WIDTH // 2, 100],
+        "bullets": [],
+        "health": 100,
+        "immune": False,
+        "immune_start": 0,
+        "shoot_timer": 0,
+        "shoot_delay": 60,
+        "count": 0,
+        "movement1": 10,
+        "movement2": 10,
+        "displace": 0
+    }
 
-# Player
-player_pos = [WIDTH // 2, HEIGHT - 60]
+# Initial state
+game_data = reset_game()
+game_state = "menu"  # menu, game, dead
+
 player_speed = 5
 player_radius = 8
-
-# Boss
-boss_pos = [WIDTH // 2, 100]
-boss_radius = 20
-
-# Bullets
-bullets = []
 bullet_speed = 3
+IMMUNE_DURATION = 500
 
-# Shoot timer
-shoot_timer = 0
-shoot_delay = 60
-displace = 0
 running = True
-count = 0
-movement1 = 10
-movement2 = 10
-health = 100
-immune = False
-immune_start_time = 0
-IMMUNE_DURATION = 500  # milliseconds (0.5 sec)
 while running:
-    displace += 5 * random.random()
     clock.tick(60)
     screen.fill((10, 10, 20))
 
-    boss_pos[0] +=   (random.random()) + movement1/2 
-    boss_pos[1] +=   (random.random()) + movement2/2 
-    
-    if boss_pos[0] > 700 or boss_pos[1] > 500:
-        movement1 = -1 * 8*random.random() - 2
-        movement2 = -1 * 10*random.random() - 2
-
-    if boss_pos[0] < 100 or boss_pos[1] < 100:
-       movement1 = 1 * 8*random.random() + 2
-       movement2 = 1 * 10*random.random() + 2
     # Events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-    # Player movement
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_a]:
-        player_pos[0] -= player_speed
-    if keys[pygame.K_d]:
-        player_pos[0] += player_speed
-    if keys[pygame.K_w]:
-        player_pos[1] -= player_speed
-    if keys[pygame.K_s]:
-        player_pos[1] += player_speed
+        if event.type == pygame.KEYDOWN:
 
-    # Clamp player
-    player_pos[0] = max(0, min(WIDTH, player_pos[0]))
-    player_pos[1] = max(0, min(HEIGHT, player_pos[1]))
+            if game_state == "menu":
+                game_data = reset_game()
+                game_state = "game"
 
-    
-    # Boss shooting pattern (radial burst)
-    shoot_timer += 5
-    if shoot_timer >= shoot_delay:
-        shoot_timer = 0
-        count += 1
-        
-        if count >= 50:
-            shoot_delay = 2000
-        for i in range(30):
-            angle = (2 * math.pi / 30) * i + displace
-            dx = math.cos(angle)
-            dy = math.sin(angle)
-            bullets.append([boss_pos[0], boss_pos[1], dx, dy])
-        
+            elif game_state == "dead":
+                if event.key == pygame.K_r:  # Restart
+                    game_data = reset_game()
+                    game_state = "game"
+                elif event.key == pygame.K_m:  # Menu
+                    game_state = "menu"
 
-    # Update bullet 
-    for b in bullets:
-        b[0] += b[2] * bullet_speed
-        b[1] += b[3] * bullet_speed
+    # ================= MENU =================
+    if game_state == "menu":
+        title = font.render("Bullet Hell Bossfight", True, (255, 255, 255))
+        prompt = small_font.render("Press any key to start", True, (180, 180, 180))
 
-    # Remove off-screen bullets
-    bullets = [b for b in bullets if 0 <= b[0] <= WIDTH and 0 <= b[1] <= HEIGHT]
+        screen.blit(title, (WIDTH//2 - title.get_width()//2, HEIGHT//3))
 
-    # Collision detection
-    for b in bullets:
-        dist = math.hypot(b[0] - player_pos[0], b[1] - player_pos[1])
-        if dist < player_radius and not immune:
-            print("Hit!")
-            health = health - 40
-            pygame.time.delay(200)
-            immune = True
-            immune_start_time = pygame.time.get_ticks()
-            #turn immune off after 0.5 sec
-            if health <= 0:
-                running = False
-            break
-    # Turn off immunity after 0.5 seconds
-    if immune:
-        if pygame.time.get_ticks() - immune_start_time >= IMMUNE_DURATION:
-            immune = False
-    # Draw boss
-    rect = boss_img.get_rect(center= boss_pos)
-    screen.blit(boss_img, rect)
-    # Draw player
-    pygame.draw.circle(screen, (50, 200, 50), player_pos, player_radius)
+        if pygame.time.get_ticks() % 1000 < 500:
+            screen.blit(prompt, (WIDTH//2 - prompt.get_width()//2, HEIGHT//2))
 
-    # Draw bullets
-    for b in bullets:
-        rect = bullet_img.get_rect(center=(int(b[0]), int(b[1])))
-        screen.blit(bullet_img, rect)
+        pygame.display.flip()
+        continue
+
+    # ================= GAME =================
+    if game_state == "game":
+        g = game_data
+
+        # Boss movement
+        g["boss_pos"][0] += random.random() + g["movement1"]/2
+        g["boss_pos"][1] += random.random() + g["movement2"]/2
+
+        if g["boss_pos"][0] > 700 or g["boss_pos"][1] > 500:
+            g["movement1"] = -8 * random.random() - 2
+            g["movement2"] = -10 * random.random() - 2
+
+        if g["boss_pos"][0] < 100 or g["boss_pos"][1] < 100:
+            g["movement1"] = 8 * random.random() + 2
+            g["movement2"] = 10 * random.random() + 2
+
+        # Player movement
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_a]:
+            g["player_pos"][0] -= player_speed
+        if keys[pygame.K_d]:
+            g["player_pos"][0] += player_speed
+        if keys[pygame.K_w]:
+            g["player_pos"][1] -= player_speed
+        if keys[pygame.K_s]:
+            g["player_pos"][1] += player_speed
+
+        # Clamp player
+        g["player_pos"][0] = max(0, min(WIDTH, g["player_pos"][0]))
+        g["player_pos"][1] = max(0, min(HEIGHT, g["player_pos"][1]))
+
+        # Shooting
+        g["shoot_timer"] += 5
+        g["displace"] += 5 * random.random()
+
+        if g["shoot_timer"] >= g["shoot_delay"]:
+            g["shoot_timer"] = 0
+            g["count"] += 1
+
+            if g["count"] >= 50:
+                g["shoot_delay"] = 2000
+
+            for i in range(30):
+                angle = (2 * math.pi / 30) * i + g["displace"]
+                dx = math.cos(angle)
+                dy = math.sin(angle)
+                g["bullets"].append([g["boss_pos"][0], g["boss_pos"][1], dx, dy])
+
+        # Update bullets
+        for b in g["bullets"]:
+            b[0] += b[2] * bullet_speed
+            b[1] += b[3] * bullet_speed
+
+        # Cull bullets
+        g["bullets"] = [b for b in g["bullets"] if 0 <= b[0] <= WIDTH and 0 <= b[1] <= HEIGHT]
+
+        # Collision
+        for b in g["bullets"]:
+            dist = math.hypot(b[0] - g["player_pos"][0], b[1] - g["player_pos"][1])
+            if dist < player_radius and not g["immune"]:
+                g["health"] -= 40
+                g["immune"] = True
+                g["immune_start"] = pygame.time.get_ticks()
+
+                if g["health"] <= 0:
+                    game_state = "dead"
+                break
+
+        # Immunity timer
+        if g["immune"]:
+            if pygame.time.get_ticks() - g["immune_start"] >= IMMUNE_DURATION:
+                g["immune"] = False
+
+        # Draw boss
+        rect = boss_img.get_rect(center=g["boss_pos"])
+        screen.blit(boss_img, rect)
+
+        # Draw player
+        pygame.draw.circle(screen, (50, 200, 50), g["player_pos"], player_radius)
+
+        # Draw bullets
+        for b in g["bullets"]:
+            rect = bullet_img.get_rect(center=(int(b[0]), int(b[1])))
+            screen.blit(bullet_img, rect)
+
+        # Health
+        health_text = small_font.render(f"Health: {g['health']}", True, (255, 255, 255))
+        screen.blit(health_text, (10, 10))
+
+    # ================= DEATH SCREEN =================
+    elif game_state == "dead":
+        dead_text = font.render("You Died", True, (255, 80, 80))
+        restart = small_font.render("Press R to Restart", True, (200, 200, 200))
+        menu = small_font.render("Press M for Main Menu", True, (200, 200, 200))
+
+        screen.blit(dead_text, (WIDTH//2 - dead_text.get_width()//2, HEIGHT//3))
+        screen.blit(restart, (WIDTH//2 - restart.get_width()//2, HEIGHT//2))
+        screen.blit(menu, (WIDTH//2 - menu.get_width()//2, HEIGHT//2 + 40))
 
     pygame.display.flip()
 

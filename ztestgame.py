@@ -12,7 +12,7 @@ pygame.init()
 clock = pygame.time.Clock()
 # Load music
 pygame.mixer.init()
-pygame.mixer.music.load("audio/pygameboss_.mp3")
+pygame.mixer.music.load("audio/pygameboss.mp3")
 bulletspawn.set_volume(0.1)
 pygame.mixer.music.set_volume(2)
 # Play music (loop forever with -1)
@@ -27,7 +27,8 @@ attack3on = False
 num = 0
 timers = {}
 bullets = [] 
-attacks = [] 
+attacks = []
+game_state = "menu" 
 
 
 from zclasses import *
@@ -51,11 +52,13 @@ while run:
 
     #Create player and boss, will likely be moved to view class
     screen.fill((0, 0, 0))  # clear screen
+    screen.blit(arena, (0, 0))
+
     #pygame.draw.circle(screen, (50, 200, 50), (player.x,player.y), player.size)
 
     if delay(timers,"newframe",200):
         boss_img = pygame.image.load(f"sprites/BOSS/BOSS - frames/BOSS{num}.png").convert_alpha()
-        boss_img = pygame.transform.scale(boss_img, (boss.size * 6, boss.size * 10))
+        boss_img = pygame.transform.scale(boss_img, (boss.size * 3, boss.size * 5))
         hero_img = pygame.image.load(f"sprites/HERO/HERO - frames/HERO{num}.png").convert_alpha()
         hero_img = pygame.transform.scale(hero_img, (player.size * 16, player.size * 16))
         num += 1
@@ -121,12 +124,12 @@ while run:
         
     bullets = [b for b in bullets if 0 <= b.p_x <= WIN_W and 0 <= b.p_y <= WIN_H]
     for b in bullets:
-        view.draw_bullet(b,bullet_img)
+        view.draw_bullet(b,bullet_img,True)
     
     attacks = [a for a in attacks if 0 <= a.p_x <= WIN_W and 0 <= a.p_y <= WIN_H]
     
     for a in attacks:
-        view.draw_bullet(a,attack_img)
+        view.draw_bullet(a,attack_img,not a.hit)
         
     
 
@@ -146,5 +149,6 @@ while run:
 
     pygame.display.flip()
     if pygame.time.get_ticks() >= 60000 or player.hp<=0 or boss.hp <=0 :
-        pygame.quit()
-        run = False
+        #pygame.quit()
+        #run = False
+        continue

@@ -59,7 +59,7 @@ class Boss:
         self.y = Y
         self.hp = 1000
         self.size = 60
-        self.hitbox = (self.x-WIN_W//10, self.y-int(WIN_H*2/5), WIN_W//5, int(WIN_H*4/5))
+        self.hitbox = (self.x-WIN_W//20, self.y-int(WIN_H*1/5), WIN_W//5, int(WIN_H*2/5))
         self.new_x = X
         self.new_y = Y
         self.movespeed = 0
@@ -111,14 +111,15 @@ class Boss:
             bullet.dx = dx
             bullet.dy = dy
             bullet.launch = True
+            bullet.image = pygame.transform.scale(bullet_img, (10, 10))  # resize if needed
             bullets.append(bullet)
                   
 
     def attack2(self,bullets,displace):
         self.displace = displace
-        for i in range(20):
+        for i in range(30):
         #Math to do radial attack
-            angle = (2 * math.pi / 20) * i + self.displace
+            angle = (2 * math.pi / 30) * i + self.displace
             dx = math.cos(angle)
             dy = math.sin(angle)
                
@@ -131,7 +132,9 @@ class Boss:
             bullet.origin_x = self.x
             bullet.origin_y = self.y
             bullet.angle = angle
-            
+            bullet.radius = 2
+            bullet.stable_radius = 2
+            bullet.image = pygame.transform.scale(bullet_img, (10, 10))  # resize if needed
             bullets.append(bullet)
     
     def attack3(self,player,bullets):
@@ -157,12 +160,111 @@ class Boss:
             bullet.dx = dx
             bullet.dy = dy
             bullet.launch = True
+            bullet.image = pygame.transform.scale(bullet_img, (10, 10))  # resize if needed
             bullets.append(bullet)
 
+    def attack4(self,bullets):
+        #wave attack
+        for i in range(10):
+            bullet = BossProjectile(10,6,10,WIN_W-20,random.random()*WIN_H)
+            bullet.dx = -1
+            bullet.dy = 0
+            bullet.launch = True
+            bullet.image = pygame.transform.scale(ball_img, (25, 25))  # resize if needed
+            bullets.append(bullet)
     
+    def attack5(self,bullets,spawn_pos):
+        #single bullet
+            bullet = BossProjectile(20,24*1.2,20,WIN_W-50,spawn_pos)
+            bullet.dx = -1
+            bullet.dy = 0
+            bullet.launch = True
+            bullet.image = pygame.transform.scale(ball_img, (120*1.2, 60*1.2))  # resize if needed
+            bullets.append(bullet)
+    
+    def attack6(self, bullets, player):
+        #javelin
+        dx = player.x - self.x
+        dy = player.y - self.y
+        dist = math.hypot(dx, dy)
+
+        if dist == 0:
+            return
+
+        dx /= dist
+        dy /= dist
+
+        prime = BossProjectile(10, 10, 10, WIN_W * (0.6 + random.random() * 0.3), WIN_H*(0.2+ random.random() * 0.5))
+        prime.dx = dx
+        prime.dy = dy
+        prime.delay = 500
+        prime.spawn_time = pygame.time.get_ticks()
+        prime.launch = True
+        prime.image = pygame.transform.scale(bullet_img, (20, 20))   
+        bullets.append(prime)
+
+        # === CREATE LASER SEGMENTS ===
+        spacing = 15
+
+        for i in range(1, 15):  # beam length
+            seg = BossProjectile(0, 8, 10, self.x, self.y)
+
+            seg.follow_prime_bullet = prime   # KEY LINE
+            seg.offset = spacing * i   # distance behind
+
+            seg.image = pygame.transform.scale(bullet_img, (14, 14))
+
+            bullets.append(seg)
+
+    def attack7(self, bullets, player):
+        # Aim at player initially
+        dx = -1
+        dy = -3
+        angle = math.atan2(dy, dx)
+
+        prime = BossProjectile(0, 12, 15, self.x, self.y)
+        
+        prime.angle = angle
+        
+        prime.orbit_speed = 0.01   # sweep speed (tune this)
+        prime.radius = 0           # stays at boss
+        prime.stable_radius = 0
+        prime.origin_x = self.x
+        prime.origin_y = self.y
+        prime.is_laser = True
+        prime.delay = 1500
+        prime.spawn_time = pygame.time.get_ticks()
+        prime.orbit_speed = 0.05
+        prime.spin = True
+        prime.base_image = pygame.transform.scale(bullet_img, (20, 20))
+        prime.image = pygame.transform.scale(bullet_img, (20, 20))
+        
+
+        bullets.append(prime)
+
+        # === CREATE LASER SEGMENTS === 
+        spacing = 10
+        length = 100
+
+        for i in range(1, length):
+            seg = BossProjectile(0, 10, 15, self.x, self.y)
+            seg.follow_prime_laser = prime
+            seg.offset = spacing * i
+            seg.delay = 1500
+            seg.is_laser = True
+            seg.spawn_time = pygame.time.get_ticks()
+            seg.base_image = pygame.transform.scale(beam_img, (14, 14))
+            seg.image = seg.base_image
             
             
+            bullets.append(seg)
             
+        
+
+        
+                
+                
+                
 
 class Projectile:
     """
@@ -219,9 +321,16 @@ class BossProjectile(Projectile):
         super().__init__(p_speed,p_size,p_damage,p_x,p_y)
         self.orbit_speed = 0.01
         self.radius = 1.5
+        self.stable_radius = self.radius
         self.angle = 0
+        self.is_laser = False
         self.spin = False
         self.launch = False
+        self.image = None
+        self.base_image = None
+        self.follow_prime_bullet = None   # reference to prime bullet
+        self.follow_prime_laser = None   # reference to prime bullet
+        self.offset = 0           # distance behind prime
 
         self.delay = 0
         self.spawn_time = 0
@@ -233,6 +342,16 @@ class BossProjectile(Projectile):
         Returns:
             None ?
         """
+
+        # Follow a projectile
+        if self.follow_prime_bullet:
+            p = self.follow_prime_bullet
+
+            # stay behind the projectile along its direction
+            self.p_x = p.p_x - p.dx * self.offset
+            self.p_y = p.p_y - p.dy * self.offset
+            return
+                
                 # wait before launching
         if self.delay > 0:
             if pygame.time.get_ticks() - self.spawn_time >= self.delay:
@@ -249,17 +368,38 @@ class BossProjectile(Projectile):
         """
         Function to apply a rotation to projectiles for specific attacks.
         """
+        # FOLLOW PRIME (laser behavior)
+        if self.delay > 0:
+            if pygame.time.get_ticks() - self.spawn_time >= self.delay:
+                self.spin = True
+                self.delay = 0  # prevent repeating
+            else:
+                return  # still waiting
+        if self.follow_prime_laser:
+                p = self.follow_prime_laser
+
+                # recompute direction from prime angle
+                dx = math.cos(p.angle)
+                dy = math.sin(p.angle)
+
+                # stay behind prime along its direction
+                self.p_x = p.p_x - dx * self.offset
+                self.p_y = p.p_y - dy * self.offset
+                return
+        
         if self.spin:
+            
             # increase angle = spinning
             self.angle += self.orbit_speed
 
             # slowly expand outward
-            self.radius += 1.5   # <- controls spiral outward speed
+            self.radius += self.stable_radius   # <- controls spiral outward speed
 
             # convert polar → cartesian
             self.p_x = self.origin_x + math.cos(self.angle) * self.radius
             self.p_y = self.origin_y + math.sin(self.angle) * self.radius
 
+        
     #Boss projectiles will collide with player to do damage         
     #After a hit, player is immune for a little.
     def player_collision(self,player):
@@ -302,7 +442,7 @@ class PlayerProjectile(Projectile):
         super().__init__(p_speed,p_size,p_damage,p_x,p_y)
         self.delay = 0
         self.hit = False
-
+        self.image = attack_img
         self.player_p_hitbox = (self.p_x,self.p_y,2,5)
 
 
@@ -330,9 +470,10 @@ class PlayerProjectile(Projectile):
             boss.hp -= self.p_damage
             print("Boss Hit!")
             print(boss.hp)
-
+            
             self.hit = True
             boss.hit = True
+            
             
             
     
@@ -347,6 +488,9 @@ class View:
     """
     Class Containing functions to draw all sprites.
     """
+
+
+
     def draw_player(self, player, player_img):
         """
         Draws the sprite for the player.
@@ -369,7 +513,7 @@ class View:
         screen.blit(boss_img, rect)
             
                            
-    def draw_bullet(self, bullet, bullet_img):
+    def draw_bullet(self, bullet, live):
         """
         Draws the sprite for the projectiles.
 
@@ -379,8 +523,19 @@ class View:
         #color = (255, 50, 50) if bullet.delay > 0 else (50, 200, 50)
         #pygame.draw.circle(screen, color,
             #(int(bullet.p_x), int(bullet.p_y)), bullet.p_size)
-        rect = bullet_img.get_rect(center=(bullet.p_x, bullet.p_y))
-        screen.blit(bullet_img, rect)
+        if not live:
+            return
+        
+        img = bullet.image
+        
+        if hasattr(bullet, "is_laser") and bullet.is_laser:
+            angle_deg = -math.degrees(
+                bullet.angle if not bullet.follow_prime_laser else bullet.follow_prime_laser.angle
+        )
+            img = pygame.transform.rotate(bullet.base_image, angle_deg)
+
+        rect = img.get_rect(center=(bullet.p_x, bullet.p_y))
+        screen.blit(img, rect)
 
     def draw_boss_healthbar(self, boss):
         """
