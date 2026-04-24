@@ -59,7 +59,7 @@ class Boss:
         self.y = Y
         self.hp = 1000
         self.size = 60
-        self.hitbox = (self.x-WIN_W//20, self.y-int(WIN_H*1/5), WIN_W//5, int(WIN_H*2/5))
+        self.hitbox = (self.x-WIN_W//70, self.y-int(WIN_H*1/5), WIN_W//15, int(WIN_H*2/5))
         self.new_x = X
         self.new_y = Y
         self.movespeed = 0
@@ -92,6 +92,7 @@ class Boss:
         """
         self.x += 5*self.dx
         self.y += 5*self.dy
+        self.hitbox = (self.x-WIN_W//70, self.y-int(WIN_H*1/5), WIN_W//15, int(WIN_H*2/5))
         if self.x == self.new_x and self.y == self.new_y:
             self.random_move()
         elif self.x < 20 or self.y < 20 or self.x > WIN_W - 100 or self.y > WIN_H - 100:
