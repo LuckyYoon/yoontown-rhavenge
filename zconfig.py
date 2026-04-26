@@ -4,7 +4,7 @@ import random
 import time
 pygame.init()
 immune = False
-WIN_W, WIN_H = 1920 * 0.6, 1080 * 0.6
+WIN_W, WIN_H = 1560 * 1, 1000 * 1
 bulletspawn = pygame.mixer.Sound("audio/bulletspawn.mp3")
 bulletspawn.set_volume(0.2)
 bloom = pygame.mixer.Sound("audio/bloom.wav")
@@ -17,13 +17,17 @@ burst = pygame.mixer.Sound("audio/burst.mp3")
 burst.set_volume(0.2)
 beam = pygame.mixer.Sound("audio/beam.ogg")
 beam.set_volume(1)
-star = beam = pygame.mixer.Sound("audio/star.wav")
-star.set_volume(1)
+star = pygame.mixer.Sound("audio/star.wav")
+star.set_volume(0.2)
+
+
+
+
 
 win_text_img = pygame.image.load("sprites/You Win.png")
-win_text_img = pygame.transform.scale(win_text_img, (500,100))
+win_text_img = pygame.transform.scale(win_text_img, (1000,200))
 lose_text_img = pygame.image.load("sprites/You Lose.png")
-lose_text_img = pygame.transform.scale(lose_text_img, (500,100))
+lose_text_img = pygame.transform.scale(lose_text_img, (1000,200))
 restart_img = pygame.image.load("sprites/restart_button.png")
 quit_img = pygame.image.load("sprites/quit_button.png")
 bullet_img = pygame.image.load("sprites/BOSS/BOSS - attacks/BOSS small attack.png")
@@ -41,8 +45,9 @@ boss_hit_img = pygame.transform.smoothscale(boss_hit_img, (400, 400))  # resize 
 warning_img = pygame.image.load("sprites/BOSS/BOSS - attacks/warning.png")
 warning_img = pygame.transform.smoothscale(warning_img, (20*1.2, 100*1.2))  # resize if needed
 
+
 screen = pygame.display.set_mode((WIN_W, WIN_H))
-font = pygame.font.SysFont("times new roman", 24)
+font = pygame.font.SysFont("times new roman", 40)
 small_font = pygame.font.SysFont("times new roman", 28)
 pygame.display.set_caption("Hell")
 IMMUNE_DURATION = 400
@@ -50,4 +55,6 @@ arena = pygame.image.load("sprites/Arena.png").convert()
 arena = pygame.transform.scale(arena,(WIN_W,WIN_H))
 arena2 = pygame.image.load("sprites/Arena Stage 2.png").convert()
 arena2 = pygame.transform.scale(arena2,(WIN_W,WIN_H))
-#functions: 
+#functions:
+
+
