@@ -12,6 +12,7 @@ pygame.mixer.init()
 
 clock = pygame.time.Clock()
 run = True
+game_over = False
 
 # Music
 pygame.mixer.music.load("audio/pygameboss.mp3")
@@ -24,6 +25,8 @@ boss = Boss(800, WIN_H/2)
 player = Player(50, 20)
 controller = Controller()
 view = View()
+restart_button = Button(370,200,restart_img,2)
+quit_button = Button(370,400, quit_img,2)
 
 # Data
 bullets = []
@@ -31,6 +34,7 @@ attacks = []
 
 timers = {}
 arena_img = arena
+
 # Animation
 num = 0
 num2 = 0
@@ -62,7 +66,12 @@ pattern3usage = 0
 current_attack = None
 javelintimer = 300
 movelist = [radialactive,spinning_radialactive,blooming_radialactive,javelinactive]
+
+
+
+
 while run:
+
     clock.tick(60)
     boss.hit = False
 
@@ -311,39 +320,162 @@ while run:
     # Move bullets
     fire_bullet(bullets, player)
 
-    # Draw
-    
-    
-    # Bullet cleanup
-    bullets = [b for b in bullets if 0 <= b.p_x <= WIN_W and 0 <= b.p_y <= WIN_H or b.is_laser]
-    for b in bullets:
-        if not attack7active and b.is_laser:
-            bullets.remove(b)
-        view.draw_bullet(b, True)
-        
-    if attack7active:    
-        if delay(timers,"attack7",5000):
-            attack7active = False
-            print("Stops")
-            print(attack7active)
-            timers.pop("attack7")   
-            beam.stop()    
+    if not game_over: 
+        # Bullet cleanup
+        bullets = [b for b in bullets if 0 <= b.p_x <= WIN_W and 0 <= b.p_y <= WIN_H or b.is_laser]
+        for b in bullets:
+            if not attack7active and b.is_laser:
+                bullets.remove(b)
+            view.draw_bullet(b, True)
+            
+        if attack7active:    
+            if delay(timers,"attack7",5000):
+                attack7active = False
+                print("Stops")
+                print(attack7active)
+                timers.pop("attack7")   
+                beam.stop()    
 
-    
-    
 
-    attacks = [a for a in attacks if 0 <= a.p_x <= WIN_W and 0 <= a.p_y <= WIN_H]
-    for a in attacks:
-        view.draw_bullet(a, not a.hit)
+        attacks = [a for a in attacks if 0 <= a.p_x <= WIN_W and 0 <= a.p_y <= WIN_H]
+        for a in attacks:
+            view.draw_bullet(a, not a.hit)
 
-    view.draw_player(player, hero_img)
-    view.draw_boss(boss, boss_img)
-    view.draw_boss_healthbar(boss)
-    view.draw_player_healthbar(player)
+
+        # Draw
+
+        view.draw_player(player, hero_img)
+        view.draw_boss(boss, boss_img)
+        view.draw_boss_healthbar(boss)
+        view.draw_player_healthbar(player)
+
     # Immunity
     if player.immune:
         if pygame.time.get_ticks() - player.immune_start_time >= IMMUNE_DURATION:
             player.immune = False
+
+    # Check if Player or Boss is defeated, then prompts user with RESTART or QUIT Buttons
+    if boss.hp < 0:
+        game_over = True
+        screen.blit(win_text_img,(310,70))
+        if quit_button.draw():
+            break
+
+        if restart_button.draw():
+            pygame.mixer.music.load("audio/pygameboss.mp3")
+            pygame.mixer.music.set_volume(0.5)
+            pygame.mixer.music.play(-1)
+            boss = Boss(800, WIN_H/2)
+            player = Player(50, 20)
+            controller = Controller()
+            view = View()
+            restart_button = Button(370,200,restart_img,2)
+            quit_button = Button(370,400, quit_img,2)
+
+            # Data
+            bullets = []
+            attacks = []
+            game_over = False
+            timers = {}
+            arena_img = arena
+
+            # Animation
+            num = 0
+            num2 = 0
+            num3 = 0
+            num4 = 0
+            inf  = 0
+            phase2 = False
+            radialactive = False
+            radialusage = 0
+            spinning_radialactive = False
+            spinning_radialusage = 0
+            blooming_radialactive = False
+            blooming_radialusage = 0
+            starfallactive = False
+            starfallusage = 0
+            meteoractive = False
+            meteorusage = 0
+            choose_pos = True
+            javelinactive = False
+            lodge = False
+            javelinusage = 0
+            attack7active = False
+            pattern1active = False
+            pattern1usage = 0
+            pattern2active = False
+            pattern2usage = 0
+            pattern3active = False
+            pattern3usage = 0
+            current_attack = None
+            javelintimer = 300
+            movelist = [radialactive,spinning_radialactive,blooming_radialactive,javelinactive]
+
+    if player.hp < 0:
+        game_over = True
+
+        screen.blit(lose_text_img,(310,70))
+        if quit_button.draw():
+            break
+
+        if restart_button.draw():
+            pygame.mixer.music.load("audio/pygameboss.mp3")
+            pygame.mixer.music.set_volume(0.5)
+            pygame.mixer.music.play(-1)
+            boss = Boss(800, WIN_H/2)
+            player = Player(50, 20)
+            controller = Controller()
+            view = View()
+            restart_button = Button(370,200,restart_img,2)
+            quit_button = Button(370,400, quit_img,2)
+
+            # Data
+            bullets = []
+            attacks = []
+            game_over = False
+            timers = {}
+            arena_img = arena
+
+            # Animation
+            num = 0
+            num2 = 0
+            num3 = 0
+            num4 = 0
+            inf  = 0
+            phase2 = False
+            radialactive = False
+            radialusage = 0
+            spinning_radialactive = False
+            spinning_radialusage = 0
+            blooming_radialactive = False
+            blooming_radialusage = 0
+            starfallactive = False
+            starfallusage = 0
+            meteoractive = False
+            meteorusage = 0
+            choose_pos = True
+            javelinactive = False
+            lodge = False
+            javelinusage = 0
+            attack7active = False
+            pattern1active = False
+            pattern1usage = 0
+            pattern2active = False
+            pattern2usage = 0
+            pattern3active = False
+            pattern3usage = 0
+            current_attack = None
+            javelintimer = 300
+            movelist = [radialactive,spinning_radialactive,blooming_radialactive,javelinactive]
+    
+    
     pygame.display.flip()
 
 pygame.quit()
+    
+
+
+            
+
+
+
