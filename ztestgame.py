@@ -29,7 +29,7 @@ timers = {}
 bullets = [] 
 attacks = []
 game_state = "menu" 
-
+arena_img = arena
 
 from zclasses import *
 boss = Boss(800,WIN_H/2)
@@ -52,7 +52,7 @@ while run:
 
     #Create player and boss, will likely be moved to view class
     screen.fill((0, 0, 0))  # clear screen
-    screen.blit(arena, (0, 0))
+    screen.blit(arena_img, (0, 0))
 
     #pygame.draw.circle(screen, (50, 200, 50), (player.x,player.y), player.size)
 
@@ -145,6 +145,8 @@ while run:
 
     if boss.hp <= 500:
         controller.phase = True
+        arena_img = arena2
+        print("ok")
     
 
     pygame.display.flip()

@@ -99,7 +99,7 @@ class Boss:
             self.random_move()
         
     
-    def attack1(self,bullets,displace):
+    def radial(self,bullets,displace):
         """
         Creates a radial attack spawning on the boss.
         Args:
@@ -109,25 +109,30 @@ class Boss:
         """
         #Code for the boss's first attack
         self.displace = displace
-        for i in range(30):
+        for i in range(22):
         # Math to do radial attack
             # Create the angle for bullet direction
-            angle = (2 * math.pi / 30) * i + self.displace
+            angle = (2 * math.pi / 22) * i + self.displace
             # Create the velocity in x of bullet
             dx = math.cos(angle)
             # Create the velocity in y of bullet
             dy = math.sin(angle)
             #Each bullet is created as a boss projectile and added to a list
-            bullet = BossProjectile(5,5,20,self.x,self.y)
+            bullet = BossProjectile(5,10,20,self.x,self.y)
             # The bullet directions
             bullet.dx = dx
             bullet.dy = dy
             bullet.launch = True
-            bullet.image = pygame.transform.scale(bullet_img, (10, 10))  # resize if needed
+            bullet.image = pygame.transform.scale(ball_img, (60, 20))
+            bullet.image = pygame.transform.rotate(bullet.image, 180)  # resize if needed  # resize if needed
+            angle = -math.degrees(angle)
+            bullet.image = pygame.transform.rotate(bullet.image, angle)
+            burst.stop()
+            burst.play()
             bullets.append(bullet)
                   
 
-    def attack2(self,bullets,displace):
+    def spinning_radial(self,bullets,displace):
         """
         Creates a radial attack spawning on the boss with a spinning effect.
 
@@ -139,27 +144,32 @@ class Boss:
             None
         """
         self.displace = displace
-        for i in range(30):
+        for i in range(12):
         #Math to do radial attack
-            angle = (2 * math.pi / 30) * i + self.displace
+            angle = (2 * math.pi / 25) * i + self.displace
             dx = math.cos(angle)
             dy = math.sin(angle)
                
             #Each bullet is creates as a boss projectile and added to a list
                 
-            bullet = BossProjectile(2,5,20,self.x ,self.y)
+            bullet = BossProjectile(2,3,20,self.x - 60 ,self.y+20)
             bullet.dx = dx
             bullet.dy = dy
             bullet.spin = True 
             bullet.origin_x = self.x
             bullet.origin_y = self.y
             bullet.angle = angle
-            bullet.radius = 2
-            bullet.stable_radius = 2
-            bullet.image = pygame.transform.scale(bullet_img, (10, 10))  # resize if needed
+            bullet.radius = 6
+            bullet.orbit_speed = 0.015
+            bullet.stable_radius = 6
+            bullet.image = pygame.transform.scale(bullet_img, (10, 5))  # resize if needed
+            bullet.image = pygame.transform.rotate(bullet.image, 180)  # resize if needed  # resize if needed
+            angle = -math.degrees(angle)
+            bullet.image = pygame.transform.rotate(bullet.image, angle)
             bullets.append(bullet)
-    
-    def attack3(self,player,bullets):
+            wave.stop()
+            wave.play()
+    def blooming_radial(self,bullets,player):
         """
         Creates a radial attack spawning on the player with a delay before the projectiles launch.
 
@@ -194,8 +204,9 @@ class Boss:
             bullet.launch = True
             bullet.image = pygame.transform.scale(bullet_img, (10, 10))  # resize if needed
             bullets.append(bullet)
+            
 
-    def attack4(self,bullets):
+    def starfall(self,bullets,displace):
         """
         Creates a wave attack spawning on the right side of the screen.
 
@@ -206,15 +217,16 @@ class Boss:
             None
         """
         #wave attack
-        for i in range(10):
-            bullet = BossProjectile(10,6,10,WIN_W-20,random.random()*WIN_H)
+        for i in range(6):
+            bullet = BossProjectile(10,6,10,WIN_W-20, 0.166*WIN_H * i * displace + 60)
             bullet.dx = -1
             bullet.dy = 0
             bullet.launch = True
-            bullet.image = pygame.transform.scale(ball_img, (25, 25))  # resize if needed
+            bullet.image = pygame.transform.scale(ball_img, (25, 10))  # resize if needed
             bullets.append(bullet)
+            
     
-    def attack5(self,bullets,spawn_pos):
+    def meteor(self,bullets,spawn_pos,dull):
         """
         Creates a single bullet attack spawning at a specific position.
 
@@ -226,14 +238,24 @@ class Boss:
             None
         """
         #single bullet
-        bullet = BossProjectile(20,24*1.2,20,WIN_W-50,spawn_pos)
-        bullet.dx = -1
-        bullet.dy = 0
-        bullet.launch = True
-        bullet.image = pygame.transform.scale(ball_img, (120*1.2, 60*1.2))  # resize if needed
-        bullets.append(bullet)
-    
-    def attack6(self, bullets, player):
+        if dull:
+            bullet = BossProjectile(10,24*1.2,0,WIN_W-100,spawn_pos)
+            bullet.image = warning_img
+            bullet.dx = -1
+            bullet.dy = 0
+            bullet.launch = True
+            bullets.append(bullet)
+            
+        else:
+            bullet = BossProjectile(30,24*1.2,20,WIN_W-50,spawn_pos)
+            bullet.dx = -1
+            bullet.dy = 0
+            bullet.launch = True
+            bullet.image = pygame.transform.scale(ball_img, (120*1.2, 60*1.2))  # resize if needed
+            bullets.append(bullet)
+            star.play()
+
+    def javelin(self, bullets, player):
         """
         Creates a javelin attack that spawns on the boss and aims at the player with a delay before the projectiles launch. 
         The attack also reduces the size of the arena.
@@ -256,25 +278,25 @@ class Boss:
         dx /= dist
         dy /= dist
 
-        prime = BossProjectile(10, 10, 10, WIN_W * (0.6 + random.random() * 0.3), WIN_H*(0.2+ random.random() * 0.5))
+        prime = BossProjectile(20, 7, 10, WIN_W * (0.6 + random.random() * 0.3), WIN_H*(0.2+ random.random() * 0.5))
         prime.dx = dx
         prime.dy = dy
-        prime.delay = 500
+        prime.delay = 1000
         prime.spawn_time = pygame.time.get_ticks()
         prime.launch = True
-        prime.image = pygame.transform.scale(bullet_img, (20, 20))   
+        prime.image = pygame.transform.scale(bullet_img, (14, 14))   
         bullets.append(prime)
-
+        javsound.play()
         # === CREATE LASER SEGMENTS ===
-        spacing = 15
+        spacing = 10
 
-        for i in range(1, 15):  # beam length
-            seg = BossProjectile(0, 8, 10, self.x, self.y)
+        for i in range(1, 30):  # beam length
+            seg = BossProjectile(0, 5, 10, self.x, self.y)
 
             seg.follow_prime_bullet = prime   # KEY LINE
             seg.offset = spacing * i   # distance behind
-
-            seg.image = pygame.transform.scale(bullet_img, (14, 14))
+            seg.lodged = True
+            seg.image = pygame.transform.scale(bullet_img, (10, 10))
 
             bullets.append(seg)
 
@@ -294,23 +316,23 @@ class Boss:
         dy = -3
         angle = math.atan2(dy, dx)
 
-        prime = BossProjectile(0, 12, 15, self.x, self.y)
+        prime = BossProjectile(0, 12, 15, player.x, player.y)
         
         prime.angle = angle
         
         prime.orbit_speed = 0.01   # sweep speed (tune this)
         prime.radius = 0           # stays at boss
         prime.stable_radius = 0
-        prime.origin_x = self.x
-        prime.origin_y = self.y
+        prime.origin_x = player.x
+        prime.origin_y = player.y
         prime.is_laser = True
-        prime.delay = 1500
+        prime.delay = 500
         prime.spawn_time = pygame.time.get_ticks()
         prime.orbit_speed = 0.05
         prime.spin = True
         prime.base_image = pygame.transform.scale(bullet_img, (20, 20))
         prime.image = pygame.transform.scale(bullet_img, (20, 20))
-        
+        beam.play()
 
         bullets.append(prime)
 
@@ -319,10 +341,10 @@ class Boss:
         length = 100
 
         for i in range(1, length):
-            seg = BossProjectile(0, 10, 15, self.x, self.y)
+            seg = BossProjectile(0, 10, 15, player.x, player.y)
             seg.follow_prime_laser = prime
             seg.offset = spacing * i
-            seg.delay = 1500
+            seg.delay = 500
             seg.is_laser = True
             seg.spawn_time = pygame.time.get_ticks()
             seg.base_image = pygame.transform.scale(beam_img, (14, 14))
@@ -403,6 +425,7 @@ class BossProjectile(Projectile):
         self.follow_prime_bullet = None   # reference to prime bullet
         self.follow_prime_laser = None   # reference to prime bullet
         self.offset = 0           # distance behind prime
+        self.lodged = False
 
         self.delay = 0
         self.spawn_time = 0
@@ -429,6 +452,8 @@ class BossProjectile(Projectile):
             if pygame.time.get_ticks() - self.spawn_time >= self.delay:
                 self.launch = True
                 self.delay = 0  # prevent repeating
+                bloom.stop()
+                bloom.play()
             else:
                 return  # still waiting
         if self.launch:
@@ -614,7 +639,7 @@ class View:
                 bullet.angle if not bullet.follow_prime_laser else bullet.follow_prime_laser.angle
         )
             img = pygame.transform.rotate(bullet.base_image, angle_deg)
-
+        
         rect = img.get_rect(center=(bullet.p_x, bullet.p_y))
         screen.blit(img, rect)
 

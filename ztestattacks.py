@@ -29,11 +29,12 @@ view = View()
 bullets = []
 attacks = []
 timers = {}
-
+arena_img = arena
 # Animation
 num = 0
-
-
+phase2 = False
+beam_over = False
+attack7active = False
 while run:
     clock.tick(60)
     boss.hit = False
@@ -48,39 +49,38 @@ while run:
             # Manual attack testing
             if event.key == pygame.K_1:
                 print("Attack 1")
-                boss.attack1(bullets, random.random()*5)
+                boss.radial(bullets, random.random()*5)
 
             if event.key == pygame.K_2:
                 print("Attack 2")
-                boss.attack2(bullets, random.random()*5)
+                boss.spinning_radial(bullets, random.random()*5)
 
             if event.key == pygame.K_3:
                 print("Attack 3")
-                boss.attack3(player, bullets)
+                boss.blooming_radial(bullets, player)
 
             if event.key == pygame.K_4:
                 print("Attack 4")
-                boss.attack4(bullets)
+                boss.starfall(bullets,0.8 + random.random() * 0.2)
 
             if event.key == pygame.K_5:
                 print("Attack 5")
-                boss.attack5(bullets,(0.2+random.random()*0.6)*WIN_W)
+                boss.meteor(bullets,(0.3 + random.random()*0.3)*WIN_H)
 
             if event.key == pygame.K_6:
                 print("Attack 6")
-                boss.attack6(bullets,player)
+                boss.javelin(bullets,player)
             
             if event.key == pygame.K_7:
                 print("Attack 7")
-                boss.attack7(bullets,boss)
-
-
+                attack7active = True
+                boss.attack7(bullets,player)
 
 
             if event.key == pygame.K_8:
                 print("Attack 8 (spam test)")
                 for _ in range(10):
-                    boss.attack1(bullets, random.random()*5)
+                    boss.radial(bullets, random.random()*5)
             
             
 
@@ -90,8 +90,14 @@ while run:
     fire_attack(attacks, boss)
 
     # ================= DRAW =================
+    if boss.hp <= 500 and not phase2:
+        arena_img = arena2
+        print("New Arena")
+        phase2 = True
+    if boss.hit == True:
+        boss_img = boss_hit_img
     screen.fill((0, 0, 0))
-    screen.blit(arena, (0, 0))
+    screen.blit(arena_img, (0, 0))
 
     # Animation update
     if delay(timers, "newframe", 200):
@@ -112,12 +118,23 @@ while run:
 
     # Draw
     
-
+    
     # Bullet cleanup
     bullets = [b for b in bullets if 0 <= b.p_x <= WIN_W and 0 <= b.p_y <= WIN_H or b.is_laser]
     for b in bullets:
+        if not attack7active and b.is_laser:
+            bullets.remove(b)
         view.draw_bullet(b, True)
+        
+    if attack7active:    
+        if delay(timers,"attack7",5000):
+            attack7active = False
+            print("Stops")
+            print(attack7active)
+            timers.pop("attack7")        
 
+    
+    
 
     attacks = [a for a in attacks if 0 <= a.p_x <= WIN_W and 0 <= a.p_y <= WIN_H]
     for a in attacks:
@@ -131,7 +148,6 @@ while run:
     if player.immune:
         if pygame.time.get_ticks() - player.immune_start_time >= IMMUNE_DURATION:
             player.immune = False
-
     pygame.display.flip()
 
 pygame.quit()
