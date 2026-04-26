@@ -20,8 +20,12 @@ beam.set_volume(1)
 star = beam = pygame.mixer.Sound("audio/star.wav")
 star.set_volume(1)
 
-
-
+win_text_img = pygame.image.load("sprites/You Win.png")
+win_text_img = pygame.transform.scale(win_text_img, (500,100))
+lose_text_img = pygame.image.load("sprites/You Lose.png")
+lose_text_img = pygame.transform.scale(lose_text_img, (500,100))
+restart_img = pygame.image.load("sprites/restart_button.png")
+quit_img = pygame.image.load("sprites/quit_button.png")
 bullet_img = pygame.image.load("sprites/BOSS/BOSS - attacks/BOSS small attack.png")
 bullet_img = pygame.transform.scale(bullet_img, (10, 10))  # resize if needed
 ball_img = pygame.image.load("sprites/BOSS/BOSS - attacks/BOSS strong 1 attack.png")

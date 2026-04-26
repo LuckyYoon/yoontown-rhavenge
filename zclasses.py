@@ -258,7 +258,7 @@ class Boss:
     def javelin(self, bullets, player):
         """
         Creates a javelin attack that spawns on the boss and aims at the player with a delay before the projectiles launch. 
-        The attack also reduces the size of the arena.
+        The attack also reduces the size of the arena as the javelin will not despawn.
 
         Args:
             bullets: The global list of boss projectiles
@@ -752,7 +752,7 @@ class Controller:
         mouse = pygame.mouse.get_pressed()
         if (keys[pygame.K_SPACE] or mouse[0])  and delay(timers, "player_shot", 200):
             # create projectile from player position
-            proj = PlayerProjectile(8, 4, 20, player.x, player.y)
+            proj = PlayerProjectile(8, 4, 20000000, player.x, player.y)
 
             # shoot upward (you can change later)
             proj.dx = 1
@@ -813,3 +813,29 @@ def delay(timers, key, ms):
         return True
 
     return False
+
+
+# Button Class
+class Button:
+
+    def __init__(self, x, y, image, scale):
+        width = image.get_width()
+        height = image.get_height()
+        self.image = pygame.transform.scale(image, (int(width * scale), int(height * scale)))
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x,y)
+        self.clicked = False
+
+    def draw(self):
+        action = False
+        # get mourse position
+        pos = pygame.mouse.get_pos()
+        
+        # check if mouse is hovering over the button and clicks
+        if self.rect.collidepoint(pos):
+            if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:
+                self.clicked == True
+                action = True
+        # draw button on screen
+        screen.blit(self.image, (self.rect.x, self.rect.y))
+        return action
