@@ -2,7 +2,7 @@ import pygame
 import math
 import random
 import time
-from zconfig import *
+from ytr_config import *
 
 
 
@@ -29,7 +29,7 @@ class Player:
     def __init__(self,x,y):
         self.x = x
         self.y = y
-        self.hp = 100
+        self.hp = 325
         self.size = 10
         self.movespeed = 4
         self.alive = True
@@ -77,22 +77,22 @@ class Boss:
             projectiles launch a little.
         """
         # 22 bullets
-        for i in range(22):
+        for i in range(30):
         # Math to do radial attack
             # Create the angle for bullet direction
-            angle = (2 * math.pi / 22) * i + displace
+            angle = (2 * math.pi / 30) * i + displace
             # Create the velocity in x and y of bullet
             dx = math.cos(angle)
             dy = math.sin(angle)
             #Each bullet is created as a boss projectile and added to a list
-            bullet = BossProjectile(5,6,20,self.x,self.y)
+            bullet = BossProjectile(6,8,15,self.x - 90,self.y-20)
             # The bullet directions
             bullet.dx = dx
             bullet.dy = dy
             # Set the bullet to launch using launchprojectile
             bullet.launch = True
             # Set the bullet image
-            bullet.image = pygame.transform.scale(ball_img, (60 * 0.6, 20* 0.6))
+            bullet.image = pygame.transform.scale(ball_img, (60 , 25 ))
             bullet.image = pygame.transform.rotate(bullet.image, 180)  # resize if needed  # resize if needed
             # Make the image rotate depending on its angle
             angle = -math.degrees(angle)
@@ -115,7 +115,7 @@ class Boss:
             displace: A float representing a random number to shift the angle
         """
         # 12 bullets
-        for i in range(12):
+        for i in range(16):
         #Math to do radial attack
             # Create angle for bullet direction
             angle = (2 * math.pi / 25) * i + displace
@@ -123,7 +123,7 @@ class Boss:
             dx = math.cos(angle)
             dy = math.sin(angle)    
             #Each bullet is creates as a boss projectile            
-            bullet = BossProjectile(2,3,20,self.x - 60 ,self.y+20)
+            bullet = BossProjectile(2,5,12,self.x - 90 ,self.y-20)
             # Set the bullets direction
             bullet.dx = dx
             bullet.dy = dy
@@ -140,7 +140,7 @@ class Boss:
             # The speed of rotation for the bullet
             bullet.orbit_speed = 0.015
             # Update the bullet image
-            bullet.image = pygame.transform.scale(bullet_img, (10, 5))  # resize if needed
+            bullet.image = pygame.transform.scale(bullet_img, (20, 10))  # resize if needed
             bullet.image = pygame.transform.rotate(bullet.image, 180)  # resize if needed  # resize if needed
             # Rotate the image to match the angle
             angle = -math.degrees(angle)
@@ -150,15 +150,14 @@ class Boss:
             # Play the sound effect
             wave.stop()
             wave.play()
+
     def blooming_radial(self,bullets,player):
         """
         Creates a radial attack spawning on the player with a delay before the projectiles launch.
 
-
         Args:
             player: An instance of the player class to target
             bullets: The global list of boss projectiles
-
 
         Returns:
             None
@@ -175,8 +174,8 @@ class Boss:
             # Create the velocity in y of bullet
             dy = math.sin(angle)
             #Each bullet is created as a boss projectile and added to a list
-            bullet = BossProjectile(10,4,20,player.x,player.y)
-
+            bullet = BossProjectile(10,5,12,player.x,player.y)
+            
 
         # Makes the bullet not launch immediately
             bullet.launch = False
@@ -189,16 +188,14 @@ class Boss:
             bullet.dx = dx
             bullet.dy = dy
             # The image of the bullet
-            bullet.image = pygame.transform.scale(bullet_img, (10, 10))  # resize if needed
+            bullet.image = pygame.transform.scale(bullet_img, (12, 12))  # resize if needed
             # Add bullet to list
             bullets.append(bullet)
            
 
-
     def starfall(self,bullets,displace):
         """
         Creates a star wave attack spawning on the right side of the screen.
-
 
         Args:
             bullets: The global list of boss projectiles
@@ -206,20 +203,21 @@ class Boss:
         """
         # wave attack
         # 6 bullets
-        for i in range(6):
+        starfall_laugh.play()
+        for i in range(8):
             # initialize the bullet as a boss projectile
             # Each bullet will spawn in a line based on i
-            bullet = BossProjectile(10,6,10,WIN_W-20, 0.166*WIN_H * i * displace + 60)
+            bullet = BossProjectile(10,6*1.4,10,WIN_W-20, 0.125*WIN_H * i * displace + 60)
             # Set bullet x and y direction
             bullet.dx = -1
             bullet.dy = 0
             # Launch the bullet using launch_projectile
             bullet.launch = True
             # Set bullet image
-            bullet.image = pygame.transform.scale(ball_img, (25, 10))  
+            bullet.image = pygame.transform.scale(ball_img, (25*1.2, 10*1.2))  
             # Add bullet to list
             bullets.append(bullet)
-           
+                      
    
     def meteor(self,bullets,spawn_pos,dull):
         """
@@ -250,14 +248,14 @@ class Boss:
         # Actual meteor projectile  
         else:
             # Initialize meteor as boss projectile
-            bullet = BossProjectile(30,24*1.2,20,WIN_W-50,spawn_pos)
+            bullet = BossProjectile(40,24*1.4,20,WIN_W-50,spawn_pos)
             # Set the velocity in x and y
             bullet.dx = -1
             bullet.dy = 0
             # Launch the bullet using launch_projectile
             bullet.launch = True
             # Set the image of the meteor
-            bullet.image = pygame.transform.scale(ball_img, (120*1.2, 60*1.2))
+            bullet.image = pygame.transform.scale(ball_img, (120*1.4, 60*1.4))
             # Add bullet to list
             bullets.append(bullet)
             # Play the sound effect
@@ -295,7 +293,7 @@ class Boss:
 
 
         # Code for the head of the javelin, or the 'prime' projectile. Segments will follow the prime
-        prime = BossProjectile(20, 7, 10, WIN_W * (0.6 + random.random() * 0.3), WIN_H*(0.2+ random.random() * 0.5))
+        prime = BossProjectile(22, 10, 15, WIN_W * (0.6 + random.random() * 0.3), WIN_H*(0.2+ random.random() * 0.5))
         # Dictate velocity in x and y
         prime.dx = dx
         prime.dy = dy
@@ -303,7 +301,7 @@ class Boss:
         prime.delay = 1000 # used in launch_projectile
         prime.spawn_time = pygame.time.get_ticks() # used in launch_projectile
         # Set image of the projectile
-        prime.image = pygame.transform.scale(bullet_img, (14, 14))  
+        prime.image = pygame.transform.scale(bullet_img, (20, 20))  
         # Add the prime projectile to list
         bullets.append(prime)
         # Play sound effect
@@ -312,9 +310,9 @@ class Boss:
         # Spacing between each segment
         spacing = 10
         # 30 segments
-        for i in range(1, 30):  # beam length
+        for i in range(1, 45):  # beam length
             # Initialize segment as boss projectile with arbitrary spawn point
-            seg = BossProjectile(0, 5, 10, self.x, self.y)
+            seg = BossProjectile(0, 8, 10, self.x, self.y)
             # Initialize the segment to follow the prime bullet
             # This logic is used in launch_projectile
             seg.follow_prime_bullet = prime
@@ -323,7 +321,7 @@ class Boss:
             # Allow the segment to become "lodged" in the wall, making it not go off the screen
             seg.lodged = True
             # Set segment image
-            seg.image = pygame.transform.scale(bullet_img, (10, 10))
+            seg.image = pygame.transform.scale(bullet_img, (14, 14))
             # Add segment to list
             bullets.append(seg)
 
@@ -337,7 +335,6 @@ class Boss:
             bullets: The global list of boss projectiles
             player: An instance of the player class to target
         """
-
 
         # Aim away from player initially
         dx = -50
@@ -356,7 +353,7 @@ class Boss:
         # Give the projectile the laser attribute, making sure it doesn't get deleted if it runs off the screen
         prime.is_laser = True
         # Set the delay before the laser launches for spin_projectile logic
-        prime.delay = 500  # used in spin_projectile
+        prime.delay = 1000  # used in spin_projectile
         prime.spawn_time = pygame.time.get_ticks() # used in spin_projectile
         # Sweep speed of the laser
         prime.orbit_speed = 0.05
@@ -370,11 +367,9 @@ class Boss:
         # Add projectile to list
         bullets.append(prime)
 
-
         # create the segments of the laser
         spacing = 10
         length = 100
-
 
         # Print 100 segments
         for i in range(1, length):
@@ -397,8 +392,6 @@ class Boss:
             bullets.append(seg)
                            
                
-               
-
 
 class Projectile:
     """
@@ -590,11 +583,11 @@ class BossProjectile(Projectile):
             print("Hit!")
             print(player.hp)
             #slight pause after being hit
-            pygame.time.delay(200)
+            pygame.time.delay(100)
             #player is immune temporarily
             player.immune = True
             player.immune_start_time = pygame.time.get_ticks()
-           
+            player_damage.play()
 
 
 class PlayerProjectile(Projectile):
@@ -782,7 +775,7 @@ class View:
 
 
         # health ratio
-        ratio = player.hp / 100  # since player max is 100
+        ratio = player.hp / 325  # since player max is 300
 
 
         # background
@@ -856,10 +849,10 @@ class Controller:
         """
         keys = pygame.key.get_pressed()
         mouse = pygame.mouse.get_pressed()
-        if (keys[pygame.K_SPACE] or mouse[0])  and delay(timers, "player_shot", 200):
+        if (keys[pygame.K_SPACE])  and delay(timers, "player_shot", 200):
             # create projectile from player position
-            proj = PlayerProjectile(8, 4, 20, player.x, player.y)
-
+            proj = PlayerProjectile(8, 4, 4, player.x, player.y)
+            
 
             # shoot upward (you can change later)
             proj.dx = 1

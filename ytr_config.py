@@ -19,9 +19,11 @@ beam = pygame.mixer.Sound("audio/beam.ogg")
 beam.set_volume(1)
 star = pygame.mixer.Sound("audio/star.wav")
 star.set_volume(0.2)
-
-
-
+win = pygame.mixer.Sound("audio/win.mp3")
+laugh = pygame.mixer.Sound("audio/evil_laugh.mp3")
+lose = pygame.mixer.Sound("audio/lose.mp3")
+starfall_laugh = pygame.mixer.Sound("audio/dark_laugh.mp3")
+player_damage = pygame.mixer.Sound("audio/playerdamage.mp3")
 
 
 win_text_img = pygame.image.load("sprites/You Win.png")

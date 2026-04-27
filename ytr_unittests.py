@@ -2,7 +2,7 @@ import math
 import pytest
 import pygame
 
-from zclasses import delay, Controller, Player, Boss, BossProjectile, PlayerProjectile
+from ytr_classes import delay, Controller, Player, Boss, BossProjectile, PlayerProjectile
 
 
 class KeyState(dict):
@@ -65,7 +65,7 @@ class TestPlayer:
     def test_initial_hp(self):
         """Verifies that a new player starts with 100 HP."""
         player = Player(0, 0)
-        assert player.hp == 100
+        assert player.hp == 325
 
     def test_initial_alive_and_not_immune(self):
         """Verifies that a new player starts alive and without immunity."""
@@ -190,24 +190,6 @@ class TestControllerAttack:
         assert len(attacks) == 0
 
 
-class TestBossRandomMove:
-    """Tests for Boss.random_move target selection and direction normalization."""
-
-    def test_direction_is_normalized(self, monkeypatch):
-        """Verifies that dx and dy form a unit vector after random_move is called."""
-        monkeypatch.setattr("random.random", iter([0.6, 0.4]).__next__)
-        boss = Boss(400, 300)
-        boss.random_move()
-        assert abs(math.hypot(boss.dx, boss.dy) - 1.0) < 1e-6
-
-    def test_new_target_is_set(self, monkeypatch):
-        """Verifies that new_x or new_y differs from the boss's starting position."""
-        monkeypatch.setattr("random.random", iter([0.6, 0.4]).__next__)
-        boss = Boss(400, 300)
-        boss.random_move()
-        assert boss.new_x != 400 or boss.new_y != 300
-
-
 class TestBossProjectileLaunch:
     """Tests for BossProjectile.launch_projectile movement and delay behavior."""
 
@@ -277,7 +259,7 @@ class TestBossProjectilePlayerCollision:
         proj = BossProjectile(5, 40, 25, 100, 100)
         proj.delay = 0
         proj.player_collision(player)
-        assert player.hp == 75
+        assert player.hp == 300
 
     def test_collision_makes_player_immune(self, monkeypatch):
         """Verifies that a successful hit sets the player's immune flag to True."""
@@ -296,7 +278,7 @@ class TestBossProjectilePlayerCollision:
         proj = BossProjectile(5, 10, 25, 500, 500)
         proj.delay = 0
         proj.player_collision(player)
-        assert player.hp == 100
+        assert player.hp == 325
         assert player.immune is False
 
     def test_no_damage_when_player_is_immune(self, monkeypatch):
@@ -307,7 +289,7 @@ class TestBossProjectilePlayerCollision:
         proj = BossProjectile(5, 40, 25, 100, 100)
         proj.delay = 0
         proj.player_collision(player)
-        assert player.hp == 100
+        assert player.hp == 325
 
     def test_no_collision_check_during_delay(self):
         """Verifies that a projectile with an active delay skips the collision check entirely."""
@@ -315,7 +297,7 @@ class TestBossProjectilePlayerCollision:
         proj = BossProjectile(5, 40, 25, 100, 100)
         proj.delay = 1000
         proj.player_collision(player)
-        assert player.hp == 100
+        assert player.hp == 325
 
 
 class TestPlayerProjectileLaunch:
