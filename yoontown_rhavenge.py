@@ -354,7 +354,7 @@ while run:
     # ================= GAME END OPTIONS =================
 
     # Check if either Boss or Player health is 0 or less
-    if boss.hp <= 0 or player.hp <= 0:
+    if boss.hp <= -7 or player.hp <= 0:
         beam.stop()
         bullets = []
         game_over = True
