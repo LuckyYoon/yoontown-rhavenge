@@ -203,7 +203,7 @@ class Boss:
         """
         # wave attack
         # 6 bullets
-        starfall_laugh.play()
+        
         for i in range(8):
             # initialize the bullet as a boss projectile
             # Each bullet will spawn in a line based on i
@@ -746,7 +746,7 @@ class View:
         pygame.draw.rect(screen, (60, 60, 60), (x, y, bar_width, bar_height))
 
 
-        # current health
+        # draw bar showing current health
         pygame.draw.rect(screen, (200, 50, 50),
             (x, y, int(bar_width * ratio), bar_height))
 
@@ -768,14 +768,16 @@ class View:
         Args:
             player: instance of the Player Class  
         """
+        # Width and height of healthbar
         bar_width = 200
         bar_height = 30
+        # Position of healthbar
         x = WIN_W * 0.03
         y = WIN_H * 0.03
 
 
         # health ratio
-        ratio = player.hp / 325  # since player max is 300
+        ratio = player.hp / 325  # since player max is 325
 
 
         # background
@@ -790,17 +792,16 @@ class View:
         else:
             color = (255, 50, 50)
 
-
-        # fill
+        # fill bar
         pygame.draw.rect(screen, color,
             (x, y, int(bar_width * ratio), bar_height))
 
 
-        # border
+        # make border
         pygame.draw.rect(screen, (255, 255, 255),
             (x, y, bar_width, bar_height), 2)  
 
-
+        # Add text for the player, gilbert
         name_text = small_font.render("Gilbert", True, (255, 255, 255))
         text_rect = name_text.get_rect(center=(x + bar_width/2, y + bar_height + 15))
         screen.blit(name_text, text_rect)
@@ -808,7 +809,7 @@ class View:
 
 
 
-# Controller Class
+# Controller Classes
 
 
 class Controller:
@@ -816,17 +817,13 @@ class Controller:
     Allows the user to control Player to move using WASD inputs and fire attacks.
     """
 
-
-    def __init__(self):
-        self.phase = False
-
-
     def move(self, player):
         """
         Function for moving the player with WASD keys.
         Args:
             player: Instance of the player class
         """
+        # Do player movement with WASD keys
         keys = pygame.key.get_pressed()
         if keys[pygame.K_a]:
             player.x -= player.movespeed
@@ -836,7 +833,6 @@ class Controller:
             player.y -= player.movespeed
         if keys[pygame.K_s]:
             player.y += player.movespeed
-        self.phase2()
 
 
 
@@ -846,28 +842,20 @@ class Controller:
         Function for the player launching projectiles.
         Args:
             player: Instance of the player class
+            attacks: The list of player attacks
+            timers: Dictionary of timers used by delay function
         """
+        # Read player input
         keys = pygame.key.get_pressed()
-        mouse = pygame.mouse.get_pressed()
-        if (keys[pygame.K_SPACE])  and delay(timers, "player_shot", 200):
+        # If space bar is hit, fire attack. Delay is cooldown between attacks
+        if (keys[pygame.K_SPACE]) and delay (timers, "player_shot", 200):
             # create projectile from player position
             proj = PlayerProjectile(8, 4, 4, player.x, player.y)
-            
-
-            # shoot upward (you can change later)
+            # shoot to the side
             proj.dx = 1
             proj.dy = 0
+            # add to player attacks list
             attacks.append(proj)
-
-
-
-
-    def phase2(self):
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_9]:
-            print("Enter Phase 2")
-            self.phase = True
-
 
 
 
@@ -922,6 +910,8 @@ def delay(timers, key, ms):
 
 
     return False
+
+
 class Button:
 
     def __init__(self, x, y, image, scale):
