@@ -26,7 +26,7 @@ player = Player(WIN_W * 0.05, WIN_H / 2)
 controller = Controller()
 view = View()
 restart_button = Button(WIN_W * 0.4, WIN_H * 0.4, restart_img, 2)
-quit_button = Button(WIN_W * 0.4, WIN_W * 0.45, quit_img, 2)
+quit_button = Button(WIN_W * 0.4, WIN_W * 0.5, quit_img, 2)
 
 
 # ================= INITIAL GAME STATE =================
@@ -89,7 +89,7 @@ while run:
     # Radial attack
     if current_attack == 1:
         if delay(timers, "radial", 150):
-            boss.radial(bullets, random.random() * 5)
+            boss.radial(bullets, random.random() * 0.5)
             radialusage += 1
         if radialusage > 12:
             radialusage = 0
@@ -249,6 +249,7 @@ while run:
 
     # Changes to transition to Phase 2
     if boss.hp <= 0 and not phase2:
+        attacks = []
         bullets = []
 
         while transition:
@@ -332,15 +333,15 @@ while run:
 
         num = (num + 1) % 4
 
-        # Boss animation (Phase 2)
-        if delay(timers, "newframeboss2", 150) and phase2:
-            boss_img = pygame.image.load(
-                f"sprites/BOSS/BOSS - Stage 2 Frames/BOSS-S2-{num4}.png"
-            ).convert_alpha()
-            boss_img = pygame.transform.scale(
-                boss_img, (boss.size * 5 * 1.5, boss.size * 5 * 1.5)
-            )
-            num4 = (num4 + 1) % 4
+    # Boss animation (Phase 2)
+    if delay(timers, "newframeboss2", 150) and phase2:
+        boss_img = pygame.image.load(
+            f"sprites/BOSS/BOSS - Stage 2 Frames/BOSS-S2-{num4}.png"
+        ).convert_alpha()
+        boss_img = pygame.transform.scale(
+            boss_img, (boss.size * 5 * 1.5, boss.size * 5 * 1.5)
+        )
+        num4 = (num4 + 1) % 4
 
     # ================= UPDATE GAME STATE =================
 
@@ -401,11 +402,14 @@ while run:
                 lose_sound_delay += 999999
 
         # Quit game
-        if quit_button.draw():
+        view.draw_button(quit_button)
+        if controller.handle_button(quit_button):
             break
 
         # Restart Button resets the game to initial state
-        if restart_button.draw():
+        view.draw_button(restart_button)
+        if controller.handle_button(restart_button):
+            # reset game
 
             # Music
             pygame.mixer.music.load("audio/pygameboss.mp3")

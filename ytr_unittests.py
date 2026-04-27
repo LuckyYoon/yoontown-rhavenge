@@ -145,7 +145,7 @@ class TestControllerMove:
         """Verifies that holding A and W together moves the player diagonally."""
         player = Player(100, 100)
         self._patched_move(
-            monkeypatch, player, pygame.K_a, pygame.K_w # pylint: disable=no-member
+            monkeypatch, player, pygame.K_a, pygame.K_w  # pylint: disable=no-member
         )
         assert player.x == 96
         assert player.y == 96
@@ -169,7 +169,9 @@ class TestControllerAttack:
             ticks: The value returned by pygame.time.get_ticks.
         """
         keys = (
-            make_key_state(pygame.K_SPACE) if press_space else make_key_state() # pylint: disable=no-member
+            make_key_state(pygame.K_SPACE) # pylint: disable=no-member
+            if press_space
+            else make_key_state()
         )
         monkeypatch.setattr(pygame.key, "get_pressed", lambda: keys)
         monkeypatch.setattr(pygame.mouse, "get_pressed", lambda: (0, 0, 0))

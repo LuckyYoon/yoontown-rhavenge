@@ -464,7 +464,7 @@ class BossProjectile(Projectile):  # pylint: disable=too-many-instance-attribute
         base_image: string representing image of the projectile if the image changes
         follow_prime_bullet: instance of boss projectile other projectiles may follow
         follow_prime_laser: instance of a laser boss projectile other projectiles may follow
-        offset: The distance of each projectile behind the prime projectile
+        offset: Float representing the distance of each projectile behind the prime projectile
         lodged: Boolean determining if the projectile should run off the screen or not
         delay: int representing the delay before a bullet launches or spins
         spawn_time: float representing the time the bullet was initially called,
@@ -650,8 +650,39 @@ class PlayerProjectile(Projectile):
             boss.hit = True
 
 
-# Do later
-# View Class
+class Button:  # pylint: disable=too-few-public-methods
+    """
+    Class for the quit and restart buttons when the player or boss dies.
+
+
+    Attributes:
+        image = pygame surface representing the image of the button
+        rect = pygame rect size of the rectangle of button
+        clicked = boolean repreenting if button was clicked or not
+    """
+
+    def __init__(self, x, y, image, scale):
+        """
+        Initialize the button
+        Args:
+            x: the position in x the button will be placed
+            y: the position in y the button will be placed
+            image: the image of the button
+            scale: float representing how much to scale the image
+        """
+        # get width and height of image
+        width = image.get_width()
+        height = image.get_height()
+
+        # scale the image
+        self.image = pygame.transform.scale(
+            image, (int(width * scale), int(height * scale))
+        )
+
+        # set the image hitbox
+        self.rect = self.image.get_rect(topleft=(x, y))
+        # the box isnt clicked
+        self.clicked = False
 
 
 class View:
@@ -780,6 +811,15 @@ class View:
         text_rect = name_text.get_rect(center=(x + bar_width / 2, y + bar_height + 15))
         screen.blit(name_text, text_rect)
 
+    def draw_button(self, button):
+        """
+        Draws the button
+        Args:
+            button: The instance of button, either restart or quit
+        """
+        # Draws the button
+        screen.blit(button.image, button.rect)
+
 
 # Controller Classes
 
@@ -827,6 +867,34 @@ class Controller:
             proj.dy = 0
             # add to player attacks list
             attacks.append(proj)
+
+    def handle_button(self, button):
+        """
+        Function checking if the button has been clicked or not.
+        Args:
+            button: instance of button, either quit or restart
+        Returns:
+            True: if the button has been hit
+            False: if it has not
+        """
+        # False
+        action = False
+        # get position of the mouse
+        pos = pygame.mouse.get_pos()
+
+        # Check for the collision of mouse and button rectangle
+        if button.rect.collidepoint(pos):
+            # If the mouse is pressed on the button
+            if pygame.mouse.get_pressed()[0] == 1 and not button.clicked:
+                # button is clicked, return true
+                button.clicked = True
+                action = True
+
+        # Reset button clicked
+        if pygame.mouse.get_pressed()[0] == 0:
+            button.clicked = False
+
+        return action
 
 
 def fire_bullet(bullets, player):
@@ -877,32 +945,3 @@ def delay(timers, key, ms):
         return True
 
     return False
-
-
-class Button:  # pylint: disable=too-few-public-methods
-    """A clickable UI button that renders an image and detects mouse clicks."""
-
-    def __init__(self, x, y, image, scale):
-        width = image.get_width()
-        height = image.get_height()
-        self.image = pygame.transform.scale(
-            image, (int(width * scale), int(height * scale))
-        )
-        self.rect = self.image.get_rect()
-        self.rect.topleft = (x, y)
-        self.clicked = False
-
-    def draw(self):
-        """Draw the button and return True if it was clicked this frame."""
-        action = False
-        # get mouse position
-        pos = pygame.mouse.get_pos()
-
-        # check if mouse is hovering over the button and clicks
-        if self.rect.collidepoint(pos):
-            if pygame.mouse.get_pressed()[0] == 1 and not self.clicked:
-                self.clicked = True
-                action = True
-        # draw button on screen
-        screen.blit(self.image, (self.rect.x, self.rect.y))
-        return action
