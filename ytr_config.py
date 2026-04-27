@@ -1,12 +1,13 @@
+"""
+Game config for Yoontown Rhavenge.
+"""
+
 # Imports
 import pygame
-import math
-import random
-import time
 
 # Set Game and Window
-pygame.init()
-immune = False
+pygame.init()  # pylint: disable=no-member
+immune = False  # pylint: disable=invalid-name
 WIN_W, WIN_H = 1560 * 1, 1000 * 1
 
 # Set display, fonts, and texts
@@ -38,14 +39,13 @@ starfall_laugh = pygame.mixer.Sound("audio/dark_laugh.mp3")
 player_damage = pygame.mixer.Sound("audio/playerdamage.mp3")
 
 
-
 # ================= IMAGE SPRITES =================
 
 # Button sprites
 win_text_img = pygame.image.load("sprites/You Win.png")
-win_text_img = pygame.transform.scale(win_text_img, (1000,200))
+win_text_img = pygame.transform.scale(win_text_img, (1000, 200))
 lose_text_img = pygame.image.load("sprites/You Lose.png")
-lose_text_img = pygame.transform.scale(lose_text_img, (1000,200))
+lose_text_img = pygame.transform.scale(lose_text_img, (1000, 200))
 restart_img = pygame.image.load("sprites/restart_button.png")
 quit_img = pygame.image.load("sprites/quit_button.png")
 
@@ -56,7 +56,9 @@ hero_img = pygame.image.load("sprites/HERO/HERO - frames/HERO1.png")
 boss_img = pygame.image.load("sprites/BOSS/BOSS - frames/BOSS1.png")
 boss_img = pygame.transform.smoothscale(boss_img, (400, 400))  # resize if needed
 boss_hit_img = pygame.image.load("sprites/BOSS/BOSS damaged.png")
-boss_hit_img = pygame.transform.smoothscale(boss_hit_img, (400, 400))  # resize if needed
+boss_hit_img = pygame.transform.smoothscale(
+    boss_hit_img, (400, 400)
+)  # resize if needed
 bullet_img = pygame.image.load("sprites/BOSS/BOSS - attacks/BOSS small attack.png")
 bullet_img = pygame.transform.scale(bullet_img, (10, 10))  # resize if needed
 ball_img = pygame.image.load("sprites/BOSS/BOSS - attacks/BOSS strong 1 attack.png")
@@ -65,10 +67,12 @@ attack_img = pygame.image.load("sprites/HERO/HERO attack.png")
 attack_img = pygame.transform.scale(attack_img, (16, 10))  # resize if needed
 spear_img = pygame.image.load("sprites/BOSS/BOSS - attacks/BOSS spear.png")
 warning_img = pygame.image.load("sprites/BOSS/BOSS - attacks/warning.png")
-warning_img = pygame.transform.smoothscale(warning_img, (20*1.2, 100*1.2))  # resize if needed
+warning_img = pygame.transform.smoothscale(
+    warning_img, (20 * 1.2, 100 * 1.2)
+)  # resize if needed
 
 # Arena sprites
 arena = pygame.image.load("sprites/Arena.png").convert()
-arena = pygame.transform.scale(arena,(WIN_W,WIN_H))
+arena = pygame.transform.scale(arena, (WIN_W, WIN_H))
 arena2 = pygame.image.load("sprites/Arena Stage 2.png").convert()
-arena2 = pygame.transform.scale(arena2,(WIN_W,WIN_H))
+arena2 = pygame.transform.scale(arena2, (WIN_W, WIN_H))

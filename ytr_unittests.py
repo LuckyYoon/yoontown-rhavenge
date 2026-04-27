@@ -1,8 +1,17 @@
-import math
-import pytest
+"""
+Game unittests for Yoontown Rhavenge.
+"""
+
 import pygame
 
-from ytr_classes import delay, Controller, Player, Boss, BossProjectile, PlayerProjectile
+from ytr_classes import (
+    delay,
+    Controller,
+    Player,
+    Boss,
+    BossProjectile,
+    PlayerProjectile,
+)
 
 
 class KeyState(dict):
@@ -46,7 +55,10 @@ class TestDelay:
         assert timers["shoot"] == 1600
 
     def test_does_not_fire_before_interval(self, monkeypatch):
-        """Verifies that delay returns False and leaves the timer unchanged before the interval passes."""
+        """
+        Verifies that delay returns False and leaves the timer unchanged
+        before the interval passes.
+        """
         monkeypatch.setattr(pygame.time, "get_ticks", lambda: 1499)
         timers = {"shoot": 1000}
         assert delay(timers, "shoot", 500) is False
@@ -91,7 +103,9 @@ class TestControllerMove:
             player: The Player instance to move.
             pressed_keys: Zero or more pygame key constants to simulate as held.
         """
-        monkeypatch.setattr(pygame.key, "get_pressed", lambda: make_key_state(*pressed_keys))
+        monkeypatch.setattr(
+            pygame.key, "get_pressed", lambda: make_key_state(*pressed_keys)
+        )
         controller = Controller()
         controller.phase2 = lambda: None
         controller.move(player)
@@ -99,25 +113,25 @@ class TestControllerMove:
     def test_move_left(self, monkeypatch):
         """Verifies that holding A decreases the player's x by movespeed."""
         player = Player(100, 50)
-        self._patched_move(monkeypatch, player, pygame.K_a)
+        self._patched_move(monkeypatch, player, pygame.K_a)  # pylint: disable=no-member
         assert player.x == 96
 
     def test_move_right(self, monkeypatch):
         """Verifies that holding D increases the player's x by movespeed."""
         player = Player(100, 50)
-        self._patched_move(monkeypatch, player, pygame.K_d)
+        self._patched_move(monkeypatch, player, pygame.K_d)  # pylint: disable=no-member
         assert player.x == 104
 
     def test_move_up(self, monkeypatch):
         """Verifies that holding W decreases the player's y by movespeed."""
         player = Player(50, 100)
-        self._patched_move(monkeypatch, player, pygame.K_w)
+        self._patched_move(monkeypatch, player, pygame.K_w)  # pylint: disable=no-member
         assert player.y == 96
 
     def test_move_down(self, monkeypatch):
         """Verifies that holding S increases the player's y by movespeed."""
         player = Player(50, 100)
-        self._patched_move(monkeypatch, player, pygame.K_s)
+        self._patched_move(monkeypatch, player, pygame.K_s)  # pylint: disable=no-member
         assert player.y == 104
 
     def test_no_keys_no_movement(self, monkeypatch):
@@ -130,7 +144,9 @@ class TestControllerMove:
     def test_move_left_and_up_simultaneously(self, monkeypatch):
         """Verifies that holding A and W together moves the player diagonally."""
         player = Player(100, 100)
-        self._patched_move(monkeypatch, player, pygame.K_a, pygame.K_w)
+        self._patched_move(
+            monkeypatch, player, pygame.K_a, pygame.K_w # pylint: disable=no-member
+        )
         assert player.x == 96
         assert player.y == 96
 
@@ -138,7 +154,9 @@ class TestControllerMove:
 class TestControllerAttack:
     """Tests for Controller.attack using spacebar input and shot delay."""
 
-    def _patched_attack(self, monkeypatch, player, attacks, timers, press_space=True, ticks=1500):
+    def _patched_attack(
+        self, monkeypatch, player, attacks, timers, press_space=True, ticks=1500
+    ):  # pylint: disable=too-many-arguments, too-many-positional-arguments
         """
         Calls Controller.attack with simulated input and clock state.
 
@@ -150,7 +168,9 @@ class TestControllerAttack:
             press_space: Whether the spacebar is simulated as held.
             ticks: The value returned by pygame.time.get_ticks.
         """
-        keys = make_key_state(pygame.K_SPACE) if press_space else make_key_state()
+        keys = (
+            make_key_state(pygame.K_SPACE) if press_space else make_key_state() # pylint: disable=no-member
+        )
         monkeypatch.setattr(pygame.key, "get_pressed", lambda: keys)
         monkeypatch.setattr(pygame.mouse, "get_pressed", lambda: (0, 0, 0))
         monkeypatch.setattr(pygame.time, "get_ticks", lambda: ticks)
@@ -224,7 +244,10 @@ class TestBossProjectileLaunch:
         assert proj.p_y == 100
 
     def test_follows_prime_bullet_position(self):
-        """Verifies that a follower projectile tracks behind its prime bullet by the given offset."""
+        """
+        Verifies that a follower projectile tracks behind its prime bullet
+        by the given offset.
+        """
         prime = BossProjectile(5, 10, 20, 200, 150)
         prime.dx = 1
         prime.dy = 0
@@ -236,7 +259,10 @@ class TestBossProjectileLaunch:
         assert follower.p_y == 150
 
     def test_delay_prevents_movement(self, monkeypatch):
-        """Verifies that a projectile with an active delay does not move before the delay expires."""
+        """
+        Verifies that a projectile with an active delay does not move
+        before the delay expires.
+        """
         monkeypatch.setattr(pygame.time, "get_ticks", lambda: 500)
         proj = BossProjectile(5, 10, 20, 100, 100)
         proj.dx = 1

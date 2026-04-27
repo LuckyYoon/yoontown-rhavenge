@@ -1,5 +1,5 @@
 """
-Game classes for the Yoontown Runner game.
+Game classes for Yoontown Rhavenge.
 Defines model classes (Player, Boss, Projectiles), view classes, and controller classes.
 """
 
@@ -821,7 +821,7 @@ class Controller:
             timers, "player_shot", 200
         ):
             # create projectile from player position
-            proj = PlayerProjectile(8, 4, 100, player.x, player.y)
+            proj = PlayerProjectile(8, 4, 4, player.x, player.y)
             # shoot to the side
             proj.dx = 1
             proj.dy = 0
